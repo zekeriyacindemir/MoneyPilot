@@ -6,3 +6,135 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+enum CategoryType {
+  INCOME
+  EXPENSE
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  BANK_TRANSFER
+  DIGITAL_WALLET
+  OTHER
+}
+
+enum BudgetPeriod {
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+enum GoalStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  CANCELED
+}
+
+enum GoalPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum Currency {
+  TRY
+  USD
+  EUR
+  GBP
+}
+
+model User {
+  id              String        @id @default(uuid()) @db.Uuid
+  email           String        @unique @db.VarChar(320)
+  passwordHash    String        @db.VarChar(255)
+  displayName     String?       @db.VarChar(100)
+  defaultCurrency Currency      @default(TRY)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  categories      Category[]
+  transactions    Transaction[]
+  budgets         Budget[]
+  savingsGoals    SavingsGoal[]
+}
+
+model Category {
+  id           String        @id @default(uuid()) @db.Uuid
+  userId       String?       @db.Uuid
+  name         String        @db.VarChar(100)
+  type         CategoryType
+  isSystem     Boolean       @default(false)
+  color        String?       @db.VarChar(7)
+  icon         String?       @db.VarChar(50)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  user         User?         @relation(fields: [userId], references: [id], onDelete: Restrict)
+  transactions Transaction[]
+  budgets      Budget[]
+
+  @@index([userId, type])
+  @@index([isSystem, type])
+}
+
+model Transaction {
+  id            String         @id @default(uuid()) @db.Uuid
+  userId        String         @db.Uuid
+  categoryId    String         @db.Uuid
+  type          TransactionType
+  amount        Decimal        @db.Decimal(19, 4)
+  currency      Currency
+  paymentMethod PaymentMethod?
+  note          String?        @db.VarChar(500)
+  occurredAt    DateTime
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  user          User           @relation(fields: [userId], references: [id], onDelete: Restrict)
+  category      Category       @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  @@index([userId, occurredAt])
+  @@index([userId, type, occurredAt])
+  @@index([userId, categoryId, occurredAt])
+}
+
+model Budget {
+  id          String       @id @default(uuid()) @db.Uuid
+  userId      String       @db.Uuid
+  categoryId  String       @db.Uuid
+  amount      Decimal      @db.Decimal(19, 4)
+  currency    Currency
+  period      BudgetPeriod
+  periodStart DateTime     @db.Date
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  user        User         @relation(fields: [userId], references: [id], onDelete: Restrict)
+  category    Category     @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  @@unique([userId, categoryId, period, periodStart])
+  @@index([userId, periodStart])
+}
+
+model SavingsGoal {
+  id            String       @id @default(uuid()) @db.Uuid
+  userId        String       @db.Uuid
+  name          String       @db.VarChar(100)
+  targetAmount  Decimal      @db.Decimal(19, 4)
+  currentAmount Decimal      @default(0) @db.Decimal(19, 4)
+  currency      Currency
+  priority      GoalPriority @default(MEDIUM)
+  status        GoalStatus   @default(ACTIVE)
+  targetDate    DateTime?    @db.Date
+  completedAt   DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  user          User         @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([userId, status])
+  @@index([userId, targetDate])
+}
