@@ -1,0 +1,27 @@
+name: Continuous Integration
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run prisma:generate --workspace=@moneypilot/api
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run build
+      - run: docker build -f docker/api.Dockerfile -t moneypilot-api:ci .
+      - run: docker build -f docker/web.Dockerfile -t moneypilot-web:ci .
