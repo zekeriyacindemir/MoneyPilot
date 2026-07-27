@@ -12,6 +12,7 @@ async function bootstrap(): Promise<void> {
 
   application.enableCors({
     origin: configuration.get('CORS_ORIGIN', { infer: true }),
+    credentials: true,
   });
   application.useGlobalPipes(
     new ValidationPipe({
