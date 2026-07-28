@@ -3,10 +3,22 @@
 :root {
   --background: #f8fafc;
   --foreground: #0f172a;
+  --dashboard-canvas: #f7f8fb;
+  --dashboard-panel: #ffffff;
+  --dashboard-border: #e6e8ee;
+  --dashboard-muted: #64748b;
+  --dashboard-accent: #2563eb;
+  --dashboard-accent-soft: #eff6ff;
+  --dashboard-danger: #dc2626;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
 }

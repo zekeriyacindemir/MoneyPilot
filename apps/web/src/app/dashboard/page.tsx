@@ -1,35 +1,32 @@
-'use client';
+import { DashboardCard, EmptyState, PageHeader, SectionHeader, SkeletonCard, StatCard } from '@/features/dashboard/components/ui';
 
-import { AuthLoadingFallback } from '@/app/login/page';
-import { useAuth } from '@/features/auth/auth-context';
-import { ProtectedRoute } from '@/features/auth/protected-route';
-import { Suspense } from 'react';
+const demoStats = [
+  { label: 'Total Balance', value: '₺48.750', detail: 'Geçici demo veri', tone: 'neutral' as const },
+  { label: 'Monthly Income', value: '₺32.400', detail: '+12,4% geçen aya göre', tone: 'positive' as const },
+  { label: 'Monthly Expenses', value: '₺18.920', detail: 'Planlanan aralıkta', tone: 'neutral' as const },
+  { label: 'Savings Rate', value: '%41,6', detail: 'Hedefin üzerinde', tone: 'positive' as const },
+];
 
 export default function DashboardPage() {
   return (
-    <Suspense fallback={<AuthLoadingFallback />}>
-      <ProtectedRoute fallback={<AuthLoadingFallback />}>
-        <DashboardPlaceholder />
-      </ProtectedRoute>
-    </Suspense>
-  );
-}
-
-function DashboardPlaceholder() {
-  const { logout, user } = useAuth();
-
-  return (
-    <main className="mx-auto flex min-h-screen max-w-3xl items-center px-6 py-12">
-      <section className="w-full rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-        <p className="text-sm font-semibold tracking-wide text-sky-700">MoneyPilot</p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">
-          MoneyPilot Dashboard
-        </h1>
-        <p className="mt-3 text-slate-600">Hoş geldin, {user?.name || user?.email}.</p>
-        <button type="button" className="mt-8 text-sm font-semibold text-sky-700 hover:text-sky-800" onClick={() => void logout()}>
-          Çıkış yap
-        </button>
+    <div className="space-y-8">
+      <PageHeader eyebrow="MoneyPilot overview" title="Finansal görünümünüz" description="Bu ekranın değerleri şimdilik yalnızca arayüzü göstermek için kullanılan geçici demo verileridir." />
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {demoStats.map((stat) => <StatCard key={stat.label} {...stat} />)}
       </section>
-    </main>
+      <section className="grid gap-5 xl:grid-cols-[1.45fr_1fr]">
+        <DashboardCard className="p-5 sm:p-6">
+          <SectionHeader title="Recent Transactions" description="İşlemleriniz burada görünecek." />
+          <div className="mt-5"><EmptyState icon="arrows" title="Henüz işlem yok" description="İlk gelir veya gider kaydınız burada zaman akışı olarak yer alacak." /></div>
+        </DashboardCard>
+        <div className="grid gap-5">
+          <DashboardCard className="p-5 sm:p-6"><SectionHeader title="Budget Overview" description="Bütçe görünümü yakında." /><div className="mt-5"><EmptyState icon="wallet" title="Bütçe bekleniyor" description="Kategorileriniz için aylık bütçeler oluşturduğunuzda burada özetlenecek." /></div></DashboardCard>
+          <DashboardCard className="p-5 sm:p-6"><SectionHeader title="Savings Goals" description="Hedeflerinize odaklanın." /><div className="mt-5"><EmptyState icon="target" title="Bir hedef belirleyin" description="Birikim hedeflerinizin ilerlemesini tek bakışta takip edebileceksiniz." /></div></DashboardCard>
+        </div>
+      </section>
+      <section className="grid gap-4 md:grid-cols-3" aria-label="Yüklenme durumu örneği">
+        <SkeletonCard /><SkeletonCard /><SkeletonCard />
+      </section>
+    </div>
   );
 }
