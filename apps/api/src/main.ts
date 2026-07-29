@@ -26,6 +26,7 @@ async function bootstrap(): Promise<void> {
     const documentConfiguration = new DocumentBuilder()
       .setTitle('MoneyPilot API')
       .setVersion('1.0')
+      .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }, 'access-token')
       .build();
     const document = SwaggerModule.createDocument(application, documentConfiguration);
     SwaggerModule.setup('docs', application, document);

@@ -14,7 +14,7 @@ export function PageHeader({ eyebrow, title, description, action }: { action?: R
   );
 }
 
-export function DashboardCard({ children, className = '' }: { children: ReactNode; className?: string }) {
+export function DashboardCard({ children, className = '' }: { children?: ReactNode; className?: string }) {
   return <section className={`rounded-2xl border border-[var(--dashboard-border)] bg-[var(--dashboard-panel)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] ${className}`}>{children}</section>;
 }
 

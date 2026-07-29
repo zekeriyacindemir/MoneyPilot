@@ -1,0 +1,35 @@
+import type { Currency, TransactionType } from '@/features/transactions/transactions.types';
+
+export type DashboardPeriod = 'current_month' | 'last_3_months' | 'last_6_months' | 'last_12_months';
+
+export interface DashboardTrendPoint {
+  expense: string;
+  income: string;
+  period: string;
+}
+
+export interface DashboardRecentTransaction {
+  id: string;
+  category: {
+    id: string;
+    name: string;
+    type: TransactionType;
+    color: string | null;
+    icon: string | null;
+  };
+  type: TransactionType;
+  amount: string;
+  currency: Currency;
+  occurredAt: string;
+}
+
+export interface DashboardSummary {
+  currency: Currency;
+  period: DashboardPeriod;
+  totalBalance: string;
+  periodIncome: string;
+  periodExpense: string;
+  savingsRate: string | null;
+  recentTransactions: DashboardRecentTransaction[];
+  trend: DashboardTrendPoint[];
+}

@@ -1,5 +1,3 @@
-import { EmptyState, PageHeader } from '@/features/dashboard/components/ui';
+import { BudgetsPageClient } from '@/features/budgets/budgets-page-client';
 
-export default function BudgetsPage() {
-  return <div className="space-y-7"><PageHeader title="Budgets" description="Harcama planlarınızı ve limitlerinizi buradan izleyeceksiniz." /><EmptyState icon="wallet" title="Budgets yakında" description="Bu özellik sonraki sprintte geliştirilecek." /></div>;
-}
+export default function BudgetsPage() { return <BudgetsPageClient />; }
