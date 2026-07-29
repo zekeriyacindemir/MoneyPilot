@@ -1,13 +1,17 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { Prisma } from '@prisma/client';
+import { Currency, Prisma } from '@prisma/client';
 import * as argon2 from 'argon2';
 import { createHmac, randomBytes, randomUUID } from 'node:crypto';
 import type { Environment } from '../config/environment.validation';
 import { PrismaService } from '../prisma/prisma.service';
 import type { LoginDto } from './dto/login.dto';
 import type { RegisterDto } from './dto/register.dto';
+import type { UpdateProfileDto } from './dto/update-profile.dto';
+import type { UpdatePreferencesDto } from './dto/update-preferences.dto';
+import type { UpdatePasswordDto } from './dto/update-password.dto';
+import type { DeleteAccountDto } from './dto/delete-account.dto';
 
 export interface AccessTokenPayload {
   sub: string;
@@ -20,6 +24,10 @@ export interface AuthenticatedUser {
   name: string;
   email: string;
   createdAt: Date;
+  defaultCurrency: Currency;
+  budgetAlertsEnabled: boolean;
+  savingsGoalAlertsEnabled: boolean;
+  weeklySummaryEnabled: boolean;
 }
 
 export interface AuthenticationResult {
@@ -45,6 +53,10 @@ interface SessionUser {
   email: string;
   displayName: string | null;
   createdAt: Date;
+  defaultCurrency: Currency;
+  budgetAlertsEnabled: boolean;
+  savingsGoalAlertsEnabled: boolean;
+  weeklySummaryEnabled: boolean;
 }
 
 @Injectable()
@@ -95,6 +107,10 @@ export class AuthService {
           email: true,
           displayName: true,
           createdAt: true,
+          defaultCurrency: true,
+          budgetAlertsEnabled: true,
+          savingsGoalAlertsEnabled: true,
+          weeklySummaryEnabled: true,
         },
       });
 
@@ -117,6 +133,10 @@ export class AuthService {
         email: true,
         displayName: true,
         createdAt: true,
+        defaultCurrency: true,
+        budgetAlertsEnabled: true,
+        savingsGoalAlertsEnabled: true,
+        weeklySummaryEnabled: true,
         passwordHash: true,
       },
     });
@@ -227,6 +247,10 @@ export class AuthService {
         email: true,
         displayName: true,
         createdAt: true,
+        defaultCurrency: true,
+        budgetAlertsEnabled: true,
+        savingsGoalAlertsEnabled: true,
+        weeklySummaryEnabled: true,
       },
     });
 
@@ -239,7 +263,88 @@ export class AuthService {
       name: user.displayName ?? '',
       email: user.email,
       createdAt: user.createdAt,
+      defaultCurrency: user.defaultCurrency,
+      budgetAlertsEnabled: user.budgetAlertsEnabled,
+      savingsGoalAlertsEnabled: user.savingsGoalAlertsEnabled,
+      weeklySummaryEnabled: user.weeklySummaryEnabled,
     };
+  }
+
+  async updateProfile(userId: string, dto: UpdateProfileDto): Promise<AuthenticatedUser> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true, passwordHash: true },
+    });
+    if (!user) throw new UnauthorizedException();
+    const data: Prisma.UserUpdateInput = {};
+    if (dto.name !== undefined) data.displayName = dto.name;
+    if (dto.email !== undefined && dto.email !== user.email) {
+      if (!dto.currentPassword || !(await argon2.verify(user.passwordHash, dto.currentPassword))) {
+        throw new UnauthorizedException('Current password is incorrect.');
+      }
+      data.email = dto.email;
+    }
+    try {
+      await this.prisma.user.update({ where: { id: userId }, data });
+    } catch (error) {
+      if (this.isDuplicateEmailError(error)) throw new ConflictException('An account with this email already exists.');
+      throw error;
+    }
+    return this.getCurrentUser(userId);
+  }
+
+  async updatePreferences(userId: string, dto: UpdatePreferencesDto): Promise<AuthenticatedUser> {
+    await this.prisma.user.update({ where: { id: userId }, data: dto });
+    return this.getCurrentUser(userId);
+  }
+
+  async changePassword(userId: string, currentSessionId: string, dto: UpdatePasswordDto): Promise<void> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { passwordHash: true } });
+    if (!user || !(await argon2.verify(user.passwordHash, dto.currentPassword))) {
+      throw new UnauthorizedException('Current password is incorrect.');
+    }
+    const now = new Date();
+    await this.prisma.$transaction([
+      this.prisma.user.update({
+        where: { id: userId },
+        data: { passwordHash: await argon2.hash(dto.newPassword, { type: argon2.argon2id }) },
+      }),
+      this.prisma.authSession.updateMany({
+        where: { userId, id: { not: currentSessionId }, revokedAt: null },
+        data: { revokedAt: now, lastUsedAt: now },
+      }),
+    ]);
+  }
+
+  async getSessions(userId: string, currentSessionId: string) {
+    return this.prisma.authSession.findMany({
+      where: { userId, revokedAt: null, expiresAt: { gt: new Date() } },
+      select: { id: true, createdAt: true, lastUsedAt: true, expiresAt: true }, orderBy: { createdAt: 'desc' },
+    }).then((sessions) => sessions.map((session) => ({ ...session, current: session.id === currentSessionId })));
+  }
+
+  async revokeSession(userId: string, sessionId: string): Promise<boolean> {
+    const result = await this.prisma.authSession.updateMany({ where: { id: sessionId, userId, revokedAt: null }, data: { revokedAt: new Date() } });
+    return result.count === 1;
+  }
+
+  async exportData(userId: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { id: true, email: true, displayName: true, defaultCurrency: true, createdAt: true, categories: true, transactions: true, budgets: true, savingsGoals: true } });
+    if (!user) throw new UnauthorizedException();
+    return user;
+  }
+
+  async deleteAccount(userId: string, dto: DeleteAccountDto): Promise<void> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { passwordHash: true } });
+    if (!user || !(await argon2.verify(user.passwordHash, dto.currentPassword))) throw new UnauthorizedException('Current password is incorrect.');
+    await this.prisma.$transaction(async (tx) => {
+      await tx.authSession.deleteMany({ where: { userId } });
+      await tx.transaction.deleteMany({ where: { userId } });
+      await tx.budget.deleteMany({ where: { userId } });
+      await tx.savingsGoal.deleteMany({ where: { userId } });
+      await tx.category.deleteMany({ where: { userId, isSystem: false } });
+      await tx.user.delete({ where: { id: userId } });
+    });
   }
 
   private createSessionCredentials(): SessionCredentials {
@@ -276,7 +381,11 @@ export class AuthService {
         id: user.id,
         name: user.displayName ?? '',
         email: user.email,
-        createdAt: user.createdAt,
+      createdAt: user.createdAt,
+      defaultCurrency: user.defaultCurrency,
+      budgetAlertsEnabled: user.budgetAlertsEnabled,
+      savingsGoalAlertsEnabled: user.savingsGoalAlertsEnabled,
+      weeklySummaryEnabled: user.weeklySummaryEnabled,
       },
     };
   }
