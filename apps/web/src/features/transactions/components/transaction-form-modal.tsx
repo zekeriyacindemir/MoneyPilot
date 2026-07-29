@@ -5,6 +5,7 @@ import { isAxiosError } from 'axios';
 import { useCategoriesQuery } from '../categories.queries';
 import { useCreateTransactionMutation, useUpdateTransactionMutation } from '../transactions.queries';
 import type { Currency, PaymentMethod, Transaction, TransactionType, UpdateTransactionRequest } from '../transactions.types';
+import { useAuth } from '@/features/auth/auth-context';
 
 interface FormValues {
   amount: string;
@@ -36,7 +37,7 @@ function toDateTimeLocal(value: string): string {
   return new Date(date.getTime() - timezoneOffset).toISOString().slice(0, 16);
 }
 
-function getInitialValues(transaction?: Transaction): FormValues {
+function getInitialValues(transaction?: Transaction, defaultCurrency: Currency = 'TRY'): FormValues {
   if (transaction) {
     return {
       amount: transaction.amount,
@@ -52,7 +53,7 @@ function getInitialValues(transaction?: Transaction): FormValues {
   return {
     amount: '',
     categoryId: '',
-    currency: 'TRY',
+    currency: defaultCurrency,
     note: '',
     occurredAt: toDateTimeLocal(new Date().toISOString()),
     paymentMethod: '',
@@ -71,7 +72,8 @@ function getErrorMessage(error: unknown): string {
 }
 
 export function TransactionFormModal({ onClose, transaction }: TransactionFormModalProperties) {
-  const initialValues = getInitialValues(transaction);
+  const { user } = useAuth();
+  const initialValues = getInitialValues(transaction, user?.defaultCurrency);
   const [values, setValues] = useState<FormValues>(initialValues);
   const [formError, setFormError] = useState<string | null>(null);
   const categoriesQuery = useCategoriesQuery({ type: values.type });

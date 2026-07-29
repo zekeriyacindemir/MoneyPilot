@@ -1,5 +1,5 @@
 import { apiClient } from '@/lib/api/client';
-import type { AuthResponse, LoginRequest, RegisterRequest, User } from './auth.types';
+import type { AuthResponse, LoginRequest, PreferencesRequest, ProfileRequest, RegisterRequest, Session, User } from './auth.types';
 
 export async function register(request: RegisterRequest): Promise<AuthResponse> {
   const response = await apiClient.post<AuthResponse>('/auth/register', request);
@@ -32,3 +32,11 @@ export async function getCurrentUser(): Promise<User> {
 
   return response.data;
 }
+
+export async function updateProfile(request: ProfileRequest): Promise<User> { return (await apiClient.patch<User>('/auth/profile', request)).data; }
+export async function updatePreferences(request: PreferencesRequest): Promise<User> { return (await apiClient.patch<User>('/auth/preferences', request)).data; }
+export async function changePassword(request: { currentPassword: string; newPassword: string }): Promise<void> { await apiClient.patch('/auth/password', request); }
+export async function getSessions(): Promise<Session[]> { return (await apiClient.get<Session[]>('/auth/sessions')).data; }
+export async function revokeSession(id: string): Promise<void> { await apiClient.delete(`/auth/sessions/${id}`); }
+export async function deleteAccount(currentPassword: string): Promise<void> { await apiClient.delete('/auth/account', { data: { currentPassword } }); }
+export async function downloadExport(format: 'json' | 'csv'): Promise<void> { const response = await apiClient.get(`/auth/export?format=${format}`, { responseType: 'blob' }); const url = URL.createObjectURL(response.data as Blob); const anchor = document.createElement('a'); anchor.href = url; anchor.download = `moneypilot-backup.${format === 'csv' ? 'zip' : 'json'}`; anchor.click(); URL.revokeObjectURL(url); }

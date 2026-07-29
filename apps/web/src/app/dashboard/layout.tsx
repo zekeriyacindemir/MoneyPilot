@@ -3,7 +3,7 @@ import { ProtectedRoute } from '@/features/auth/protected-route';
 import { DashboardShell } from '@/features/dashboard/dashboard-shell';
 
 function DashboardLoadingState() {
-  return <div className="flex min-h-screen items-center justify-center bg-slate-50"><div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-4 text-sm font-medium text-slate-600 shadow-sm"><span className="size-2.5 animate-pulse rounded-full bg-blue-600" />Dashboard hazırlanıyor</div></div>;
+  return <div className="flex min-h-screen items-center justify-center bg-[var(--background)]"><div className="flex items-center gap-3 rounded-2xl border bg-[var(--card)] px-5 py-4 text-sm font-medium text-[var(--muted-foreground)] shadow-sm"><span className="size-2.5 animate-pulse rounded-full bg-[var(--primary)]" />Dashboard hazırlanıyor</div></div>;
 }
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
