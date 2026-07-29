@@ -255,11 +255,127 @@ describe('Authentication (e2e)', () => {
     });
 
     expect(firstLogoutAll.status).toBe(204);
-    expect(secondLogoutAll.status).toBe(204);
+    expect(secondLogoutAll.status).toBe(401);
     expect(firstUserSessions).toHaveLength(2);
     expect(firstUserSessions.every((session) => session.revokedAt !== null)).toBe(true);
     expect(secondUserSession.revokedAt).toBeNull();
     expectClearedRefreshCookie(firstLogoutAll);
+  });
+
+  it('updates a profile and requires the current password only when the email changes', async () => {
+    const registration = await register('Ada Lovelace', 'ada@example.com');
+    const accessToken = (registration.body as AuthenticationResponse).accessToken;
+
+    const nameUpdate = await request(application.getHttpServer())
+      .patch('/auth/profile')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ name: 'Ada Byron' });
+    const sameEmail = await request(application.getHttpServer())
+      .patch('/auth/profile')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ email: 'ada@example.com' });
+    const rejectedEmailChange = await request(application.getHttpServer())
+      .patch('/auth/profile')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ email: 'ada-byron@example.com' });
+    const emailUpdate = await request(application.getHttpServer())
+      .patch('/auth/profile')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ email: '  ADA-BYRON@EXAMPLE.COM ', currentPassword: 'password123' });
+
+    expect(nameUpdate.status).toBe(200);
+    expect(nameUpdate.body).toMatchObject({ name: 'Ada Byron', email: 'ada@example.com' });
+    expect(sameEmail.status).toBe(200);
+    expect(rejectedEmailChange.status).toBe(401);
+    expect(emailUpdate.status).toBe(200);
+    expect(emailUpdate.body).toMatchObject({ email: 'ada-byron@example.com' });
+  });
+
+  it('updates preferences only for the authenticated user', async () => {
+    const firstUser = await register('Ada Lovelace', 'ada@example.com');
+    const secondUser = await register('Grace Hopper', 'grace@example.com');
+    const firstToken = (firstUser.body as AuthenticationResponse).accessToken;
+    const secondUserId = (secondUser.body as AuthenticationResponse).user.id;
+
+    const updated = await request(application.getHttpServer())
+      .patch('/auth/preferences')
+      .set('Authorization', `Bearer ${firstToken}`)
+      .send({ defaultCurrency: 'EUR', budgetAlertsEnabled: false, weeklySummaryEnabled: true });
+    const secondUserRecord = await prisma.user.findUniqueOrThrow({ where: { id: secondUserId } });
+
+    expect(updated.status).toBe(200);
+    expect(updated.body).toMatchObject({ defaultCurrency: 'EUR', budgetAlertsEnabled: false, weeklySummaryEnabled: true });
+    expect(secondUserRecord).toMatchObject({ defaultCurrency: 'TRY', budgetAlertsEnabled: true, weeklySummaryEnabled: false });
+  });
+
+  it('changes the password, retains the current session, and revokes other sessions', async () => {
+    const registration = await register('Ada Lovelace', 'ada@example.com');
+    const accessToken = (registration.body as AuthenticationResponse).accessToken;
+    const secondLogin = await request(application.getHttpServer()).post('/auth/login').send({ email: 'ada@example.com', password: 'password123' });
+    const secondSessionToken = (secondLogin.body as AuthenticationResponse).accessToken;
+
+    const changed = await request(application.getHttpServer())
+      .patch('/auth/password')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ currentPassword: 'password123', newPassword: 'new-password123' });
+    const currentSession = await request(application.getHttpServer()).get('/auth/me').set('Authorization', `Bearer ${accessToken}`);
+    const revokedSession = await request(application.getHttpServer()).get('/auth/me').set('Authorization', `Bearer ${secondSessionToken}`);
+    const oldLogin = await request(application.getHttpServer()).post('/auth/login').send({ email: 'ada@example.com', password: 'password123' });
+    const newLogin = await request(application.getHttpServer()).post('/auth/login').send({ email: 'ada@example.com', password: 'new-password123' });
+
+    expect(changed.status).toBe(204);
+    expect(currentSession.status).toBe(200);
+    expect(revokedSession.status).toBe(401);
+    expect(oldLogin.status).toBe(401);
+    expect(newLogin.status).toBe(200);
+  });
+
+  it('lists and revokes only the authenticated user sessions', async () => {
+    const firstUser = await register('Ada Lovelace', 'ada@example.com');
+    const firstToken = (firstUser.body as AuthenticationResponse).accessToken;
+    const secondLogin = await request(application.getHttpServer()).post('/auth/login').send({ email: 'ada@example.com', password: 'password123' });
+    const secondSession = await prisma.authSession.findFirstOrThrow({
+      where: { userId: (firstUser.body as AuthenticationResponse).user.id },
+      orderBy: { createdAt: 'desc' },
+    });
+    const otherUser = await register('Grace Hopper', 'grace@example.com');
+    const otherSession = await prisma.authSession.findFirstOrThrow({ where: { userId: (otherUser.body as AuthenticationResponse).user.id } });
+
+    const listed = await request(application.getHttpServer()).get('/auth/sessions').set('Authorization', `Bearer ${firstToken}`);
+    const rejectedRevoke = await request(application.getHttpServer()).delete(`/auth/sessions/${otherSession.id}`).set('Authorization', `Bearer ${firstToken}`);
+    const revoke = await request(application.getHttpServer()).delete(`/auth/sessions/${secondSession.id}`).set('Authorization', `Bearer ${firstToken}`);
+    const secondSessionAccess = await request(application.getHttpServer()).get('/auth/me').set('Authorization', `Bearer ${(secondLogin.body as AuthenticationResponse).accessToken}`);
+
+    expect(listed.status).toBe(200);
+    expect(listed.body).toHaveLength(2);
+    expect(rejectedRevoke.status).toBe(404);
+    expect(revoke.status).toBe(204);
+    expect(secondSessionAccess.status).toBe(401);
+  });
+
+  it('exports only the authenticated user data and deletes their account', async () => {
+    const firstUser = await register('Ada Lovelace', 'ada@example.com');
+    const firstToken = (firstUser.body as AuthenticationResponse).accessToken;
+    const secondUser = await register('Grace Hopper', 'grace@example.com');
+    const firstUserId = (firstUser.body as AuthenticationResponse).user.id;
+    const secondUserId = (secondUser.body as AuthenticationResponse).user.id;
+
+    const exported = await request(application.getHttpServer()).get('/auth/export?format=json').set('Authorization', `Bearer ${firstToken}`);
+    const csvExport = await request(application.getHttpServer()).get('/auth/export?format=csv').set('Authorization', `Bearer ${firstToken}`);
+    const invalidExport = await request(application.getHttpServer()).get('/auth/export?format=xml').set('Authorization', `Bearer ${firstToken}`);
+    const rejectedDelete = await request(application.getHttpServer()).delete('/auth/account').set('Authorization', `Bearer ${firstToken}`).send({ currentPassword: 'wrongpass' });
+    const deleted = await request(application.getHttpServer()).delete('/auth/account').set('Authorization', `Bearer ${firstToken}`).send({ currentPassword: 'password123' });
+
+    expect(exported.status).toBe(200);
+    expect(exported.body).toMatchObject({ id: firstUserId, email: 'ada@example.com' });
+    expect(exported.body).not.toMatchObject({ id: secondUserId });
+    expect(csvExport.status).toBe(200);
+    expect(csvExport.headers['content-type']).toContain('application/zip');
+    expect(invalidExport.status).toBe(400);
+    expect(rejectedDelete.status).toBe(401);
+    expect(deleted.status).toBe(204);
+    expect(await prisma.user.findUnique({ where: { id: firstUserId } })).toBeNull();
+    expect(await prisma.user.findUnique({ where: { id: secondUserId } })).not.toBeNull();
   });
 
   async function register(name: string, email: string): Promise<Response> {
