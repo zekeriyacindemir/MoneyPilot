@@ -13,6 +13,7 @@ export const dashboardNavigation: DashboardNavigationItem[] = [
   { title: 'Budgets', description: 'Bütçe planlarınız', href: '/dashboard/budgets', icon: 'wallet' },
   { title: 'Savings Goals', description: 'Birikim hedefleriniz', href: '/dashboard/savings', icon: 'target' },
   { title: 'Reports', description: 'Finansal raporlar', href: '/dashboard/reports', icon: 'chart' },
+  { title: 'AI Asistan', description: 'Finansal alışkanlık koçu', href: '/dashboard/assistant', icon: 'chat' },
   { title: 'Settings', description: 'Hesap ayarları', href: '/dashboard/settings', icon: 'settings' },
 ];
 

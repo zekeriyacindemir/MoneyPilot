@@ -4,6 +4,7 @@ export type IconName =
   | 'arrows'
   | 'bell'
   | 'chart'
+  | 'chat'
   | 'chevron'
   | 'close'
   | 'grid'
@@ -37,6 +38,8 @@ export function Icon({ name, ...properties }: IconProps) {
       return <svg {...sharedProperties}><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /></svg>;
     case 'chart':
       return <svg {...sharedProperties}><path d="M4 19V5m0 14h16M8 16v-3m4 3V8m4 8v-6" /></svg>;
+    case 'chat':
+      return <svg {...sharedProperties}><path d="M20 11.5a7.5 7.5 0 0 1-8 7.48 8.8 8.8 0 0 1-3.8-.9L4 19l1.15-3.35A7.3 7.3 0 0 1 4.5 12a7.5 7.5 0 0 1 15-0.5Z" /><path d="M8 12h.01M12 12h.01M16 12h.01" /></svg>;
     case 'chevron':
       return <svg {...sharedProperties}><path d="m9 18 6-6-6-6" /></svg>;
     case 'close':
