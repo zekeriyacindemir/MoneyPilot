@@ -10,7 +10,6 @@ import {
   PageHeader,
   SectionHeader,
   SkeletonCard,
-  StatCard,
 } from './components/ui';
 import { Icon } from './components/icons';
 import {
@@ -111,40 +110,7 @@ function DashboardContent({
   const coachingQuery = useDailyCoachingQuery(summary.currency);
   return (
     <>
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          icon="wallet"
-          label="Toplam bakiye"
-          value={formatAmount(summary.totalBalance, summary.currency)}
-          detail="Tüm zamanlar"
-          tone={summary.totalBalance.startsWith('-') ? 'warning' : 'positive'}
-        />
-        <StatCard
-          icon="arrows"
-          label="Dönem geliri"
-          value={formatAmount(summary.periodIncome, summary.currency)}
-          detail={periodLabels[period]}
-          tone="positive"
-        />
-        <StatCard
-          icon="chart"
-          label="Dönem gideri"
-          value={formatAmount(summary.periodExpense, summary.currency)}
-          detail={periodLabels[period]}
-          tone="warning"
-        />
-        <StatCard
-          icon="target"
-          label="Tasarruf oranı"
-          value={summary.savingsRate === null ? '—' : `%${summary.savingsRate}`}
-          detail={summary.savingsRate === null ? 'Gelir oluşmadı' : periodLabels[period]}
-          tone={
-            summary.savingsRate !== null && Number(summary.savingsRate) >= 0
-              ? 'positive'
-              : 'warning'
-          }
-        />
-      </section>
+      <CurrentPositionCard summary={summary} period={period} />
       {healthQuery.isLoading ? <SkeletonCard /> : null}
       {healthQuery.isError ? (
         <ErrorState
@@ -248,6 +214,43 @@ function DashboardContent({
         </DashboardCard>
       </section>
     </>
+  );
+}
+
+function CurrentPositionCard({
+  period,
+  summary,
+}: {
+  period: DashboardPeriod;
+  summary: DashboardSummary;
+}) {
+  const cashFlow = Number(summary.periodIncome) - Number(summary.periodExpense);
+  return (
+    <DashboardCard className="overflow-hidden p-5 sm:p-6">
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-sm font-medium text-[var(--muted-foreground)]">Toplam bakiye</p>
+          <p className="mt-2 text-3xl font-semibold tracking-tight text-[var(--card-foreground)] sm:text-4xl">
+            {formatAmount(summary.totalBalance, summary.currency)}
+          </p>
+          <p className="mt-2 text-sm text-[var(--muted-foreground)]">Tüm zamanlardaki kayıtlarınıza göre</p>
+        </div>
+        <div className="rounded-xl bg-[var(--muted)]/65 p-4 sm:min-w-64">
+          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
+            {periodLabels[period]} nakit akışı
+          </p>
+          <p className={`mt-1 text-xl font-semibold tabular-nums ${cashFlow >= 0 ? 'text-[var(--success)]' : 'text-[var(--destructive)]'}`}>
+            {cashFlow >= 0 ? '+' : ''}{formatAmount(cashFlow.toString(), summary.currency)}
+          </p>
+          <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+            {formatAmount(summary.periodIncome, summary.currency)} gelir · {formatAmount(summary.periodExpense, summary.currency)} gider
+          </p>
+        </div>
+      </div>
+      <Link href="/dashboard/reports" className="mt-5 inline-block text-sm font-semibold text-[var(--primary)] hover:underline">
+        Dönemsel analizi raporlarda incele →
+      </Link>
+    </DashboardCard>
   );
 }
 
