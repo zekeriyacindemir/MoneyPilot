@@ -1,79 +1,88 @@
 @import 'tailwindcss';
 
 :root {
-  --background: #f7f8fc;
-  --foreground: #172033;
-  --card: #ffffff;
-  --card-foreground: #172033;
-  --muted: #f0f2f6;
-  --muted-foreground: #667085;
-  --border: #e4e7ec;
-  --input: #d8dee8;
-  --primary: #315efb;
+  --background: #f4f7ff;
+  --foreground: #13203b;
+  --card: rgb(255 255 255 / 0.82);
+  --card-foreground: #15213b;
+  --muted: #e9eeff;
+  --muted-foreground: #62708d;
+  --border: rgb(111 131 181 / 0.18);
+  --input: #cbd5ef;
+  --primary: #5946e9;
   --primary-foreground: #ffffff;
-  --secondary: #eef2ff;
-  --secondary-foreground: #293f9f;
-  --accent: #eef2ff;
-  --accent-foreground: #293f9f;
-  --destructive: #d92d20;
-  --destructive-foreground: #ffffff;
-  --success: #039855;
-  --success-muted: #ecfdf3;
-  --warning: #dc6803;
-  --warning-muted: #fffaeb;
-  --ring: #315efb;
-  --sidebar: #fbfcfe;
-  --sidebar-foreground: #475467;
-  --sidebar-active: #eef2ff;
-  --chart-income: #12b76a;
-  --chart-expense: #f04438;
+  --secondary: #e8e5ff;
+  --secondary-foreground: #4032ae;
+  --accent: #dbfbf7;
+  --accent-foreground: #04766f;
+  --destructive: #df4565;
+  --destructive-foreground: #fff;
+  --success: #00a98f;
+  --success-muted: #daf9f1;
+  --warning: #bd7600;
+  --warning-muted: #fff2cf;
+  --ring: #7868ff;
+  --sidebar: rgb(250 251 255 / 0.76);
+  --sidebar-foreground: #596783;
+  --sidebar-active: #e9e7ff;
+  --chart-income: #13bda8;
+  --chart-expense: #ee6b82;
+  --glow: rgb(89 70 233 / 0.14);
 }
 
 .dark {
-  --background: #101828;
-  --foreground: #f8fafc;
-  --card: #182230;
-  --card-foreground: #f8fafc;
-  --muted: #202c3d;
-  --muted-foreground: #98a2b3;
-  --border: #2a3648;
-  --input: #344054;
-  --primary: #84adff;
-  --primary-foreground: #101828;
-  --secondary: #22345e;
-  --secondary-foreground: #c7d7fe;
-  --accent: #22345e;
-  --accent-foreground: #dbe7ff;
-  --destructive: #f97066;
-  --destructive-foreground: #101828;
-  --success: #6ce9a6;
-  --success-muted: #123327;
-  --warning: #fec84b;
-  --warning-muted: #3a2e13;
-  --ring: #84adff;
-  --sidebar: #101828;
-  --sidebar-foreground: #98a2b3;
-  --sidebar-active: #22345e;
-  --chart-income: #6ce9a6;
-  --chart-expense: #fda29b;
+  --background: #080d1d;
+  --foreground: #edf1ff;
+  --card: rgb(19 28 54 / 0.76);
+  --card-foreground: #f3f5ff;
+  --muted: #1a2544;
+  --muted-foreground: #98a6c5;
+  --border: rgb(156 176 255 / 0.14);
+  --input: #354267;
+  --primary: #9587ff;
+  --primary-foreground: #0b1023;
+  --secondary: #28245d;
+  --secondary-foreground: #d7d3ff;
+  --accent: #103d48;
+  --accent-foreground: #82eee1;
+  --destructive: #ff8298;
+  --destructive-foreground: #260914;
+  --success: #4ee0c8;
+  --success-muted: #123d42;
+  --warning: #ffcc68;
+  --warning-muted: #493816;
+  --ring: #a89dff;
+  --sidebar: rgb(11 17 36 / 0.74);
+  --sidebar-foreground: #a6b2cf;
+  --sidebar-active: #272354;
+  --chart-income: #40d7c3;
+  --chart-expense: #ff8298;
+  --glow: rgb(124 105 255 / 0.22);
 }
 
 * { border-color: var(--border); }
 html { background: var(--background); }
-body { min-height: 100vh; background: var(--background); color: var(--foreground); font-family: Arial, Helvetica, sans-serif; }
+body { position: relative; isolation: isolate; min-height: 100vh; overflow-x: hidden; background: radial-gradient(circle at 92% -5%, color-mix(in srgb, var(--primary) 30%, transparent), transparent 30rem), radial-gradient(circle at -10% 40%, color-mix(in srgb, var(--accent) 75%, transparent), transparent 32rem), var(--background); color: var(--foreground); font-family: Arial, Helvetica, sans-serif; }
+body > * { position: relative; z-index: 1; }
+body::before, body::after { content: ''; pointer-events: none; position: fixed; inset: 0; z-index: 0; }
+body::before { opacity: .72; background: linear-gradient(115deg, transparent 0 42%, color-mix(in srgb, var(--primary) 12%, transparent) 50%, transparent 58%), repeating-linear-gradient(90deg, transparent 0 79px, color-mix(in srgb, var(--foreground) 4%, transparent) 80px), repeating-linear-gradient(0deg, transparent 0 79px, color-mix(in srgb, var(--foreground) 4%, transparent) 80px); mask-image: linear-gradient(to bottom, #000, transparent 80%); animation: fintech-grid 18s linear infinite; }
+body::after { inset: -20%; opacity: .78; background: radial-gradient(ellipse 38% 22% at 22% 25%, color-mix(in srgb, var(--primary) 33%, transparent), transparent 68%), radial-gradient(ellipse 30% 24% at 80% 30%, color-mix(in srgb, var(--accent) 60%, transparent), transparent 66%), radial-gradient(ellipse 26% 20% at 54% 85%, color-mix(in srgb, #ac74ff 27%, transparent), transparent 68%); filter: blur(26px); animation: fintech-aurora 16s ease-in-out infinite alternate; }
+@keyframes fintech-grid { from { background-position: 0 0, 0 0, 0 0; } to { background-position: 480px 0, 80px 0, 0 80px; } }
+@keyframes fintech-aurora { from { transform: translate3d(-2%, -1%, 0) scale(1); } to { transform: translate3d(3%, 2%, 0) scale(1.1); } }
 button, a { -webkit-tap-highlight-color: transparent; }
-button, a, input, select, textarea { transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease; }
-:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
-@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; } }
+button, a, input, select, textarea { transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease; }
+::selection { background: var(--primary); color: var(--primary-foreground); }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
 
-/* Feature controls use Part 1 semantic tokens while preserving their existing behaviour. */
-main input, main select, main textarea { border-color: var(--input) !important; background: var(--card) !important; color: var(--foreground) !important; }
+/* Semantic compatibility layer for feature pages. */
+main input, main select, main textarea { border-color: var(--input) !important; background: color-mix(in srgb, var(--card) 88%, var(--background)) !important; color: var(--foreground) !important; }
 main .bg-white, main .bg-slate-50 { background-color: var(--card) !important; }
 main .bg-slate-100 { background-color: var(--muted) !important; }
 main .border-slate-100, main .border-slate-200 { border-color: var(--border) !important; }
 main .text-slate-950, main .text-slate-900, main .text-slate-800 { color: var(--foreground) !important; }
 main .text-slate-700, main .text-slate-600, main .text-slate-500, main .text-slate-400 { color: var(--muted-foreground) !important; }
-main .bg-slate-950, main .bg-slate-900 { background-color: var(--primary) !important; }
+main .bg-slate-950, main .bg-slate-900 { background: linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 60%, #9b7dff)) !important; }
 main .bg-slate-950.text-white, main .bg-slate-900.text-white { color: var(--primary-foreground) !important; }
 main .bg-blue-50 { background-color: var(--secondary) !important; }
 main .text-blue-700 { color: var(--secondary-foreground) !important; }
@@ -82,11 +91,10 @@ main .text-emerald-700 { color: var(--success) !important; }
 main .bg-amber-50 { background-color: var(--warning-muted) !important; }
 main .text-amber-700 { color: var(--warning) !important; }
 main .bg-rose-50 { background-color: color-mix(in srgb, var(--destructive) 12%, var(--card)) !important; }
-main .text-rose-700, main .text-rose-800 { color: var(--destructive) !important; }
+main .text-rose-700, main .text-rose-800, main .text-red-600, main .text-red-700 { color: var(--destructive) !important; }
 main .focus\:border-blue-500:focus { border-color: var(--ring) !important; }
 main .focus\:ring-blue-100:focus { --tw-ring-color: var(--secondary) !important; }
-main [role='dialog'] { max-height: calc(100dvh - 2rem); overflow-y: auto; background: var(--card) !important; color: var(--card-foreground) !important; }
+main [role='dialog'] { max-height: calc(100dvh - 2rem); overflow-y: auto; background: var(--card) !important; color: var(--card-foreground) !important; box-shadow: 0 24px 70px rgb(1 7 26 / .36) !important; }
 main [role='dialog'] form > div:last-child { position: sticky; bottom: -1px; margin-top: 1.5rem; border-top: 1px solid var(--border); background: var(--card); padding-top: 1rem; }
-main .rounded-2xl { box-shadow: 0 1px 2px rgb(16 24 40 / 0.04); }
 main article { transition: background-color 150ms ease, transform 150ms ease; }
-@media (hover: hover) { main article:hover { background: color-mix(in srgb, var(--muted) 45%, transparent); } }
+@media (hover: hover) { main article:hover { background: color-mix(in srgb, var(--muted) 36%, transparent); } }
