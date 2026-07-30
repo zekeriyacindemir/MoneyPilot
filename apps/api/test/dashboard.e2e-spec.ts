@@ -1,5 +1,5 @@
 import { type INestApplication, ValidationPipe } from '@nestjs/common';
-import { CategoryType, PrismaClient } from '@prisma/client';
+import { BudgetPeriod, CategoryType, Currency, PrismaClient } from '@prisma/client';
 import { Test } from '@nestjs/testing';
 import request = require('supertest');
 
@@ -34,6 +34,14 @@ interface DashboardResponse {
   trend: { expense: string; income: string; period: string }[];
 }
 
+interface FinancialHealthResponse {
+  currency: string;
+  isReady: boolean;
+  missingSignals: string[];
+  score: number | null;
+  level: string | null;
+}
+
 describe('Dashboard (e2e)', () => {
   let application: INestApplication;
   let incomeCategoryId: string;
@@ -54,8 +62,12 @@ describe('Dashboard (e2e)', () => {
       'TRUNCATE TABLE "AuthSession", "Transaction", "Budget", "SavingsGoal", "Category", "User" CASCADE',
     );
     const [incomeCategory, expenseCategory] = await Promise.all([
-      prisma.category.create({ data: { name: 'Salary', type: CategoryType.INCOME, isSystem: true } }),
-      prisma.category.create({ data: { name: 'Market', type: CategoryType.EXPENSE, isSystem: true } }),
+      prisma.category.create({
+        data: { name: 'Salary', type: CategoryType.INCOME, isSystem: true },
+      }),
+      prisma.category.create({
+        data: { name: 'Market', type: CategoryType.EXPENSE, isSystem: true },
+      }),
     ]);
     incomeCategoryId = incomeCategory.id;
     expenseCategoryId = expenseCategory.id;
@@ -74,10 +86,25 @@ describe('Dashboard (e2e)', () => {
   });
 
   it('returns currency-specific all-time balance, current-period metrics, and recent transactions', async () => {
-    await createTransaction({ type: 'INCOME', amount: '100', currency: 'TRY', categoryId: incomeCategoryId });
-    await createTransaction({ type: 'EXPENSE', amount: '25', currency: 'TRY', categoryId: expenseCategoryId });
-    await createTransaction({ type: 'EXPENSE', amount: '10', currency: 'TRY', categoryId: expenseCategoryId, occurredAt: monthsAgo(2) });
-    await createTransaction({ type: 'INCOME', amount: '999', currency: 'USD', categoryId: incomeCategoryId });
+    await createTransaction({
+      type: 'INCOME',
+      amount: '100',
+      currency: 'TRY',
+      categoryId: incomeCategoryId,
+    });
+    await createTransaction({
+      type: 'EXPENSE',
+      amount: '25',
+      currency: 'TRY',
+      categoryId: expenseCategoryId,
+    });
+    await createTransaction({
+      type: 'EXPENSE',
+      amount: '10',
+      currency: 'TRY',
+      categoryId: expenseCategoryId,
+      occurredAt: monthsAgo(2),
+    });
     const response = await request(application.getHttpServer())
       .get('/dashboard/summary')
       .query({ currency: 'TRY', period: 'current_month' })
@@ -94,7 +121,9 @@ describe('Dashboard (e2e)', () => {
       savingsRate: '75',
     });
     expect(body.recentTransactions).toHaveLength(3);
-    expect(body.recentTransactions.every((transaction) => transaction.currency === 'TRY')).toBe(true);
+    expect(body.recentTransactions.every((transaction) => transaction.currency === 'TRY')).toBe(
+      true,
+    );
     expect(body.trend.some((point) => point.income === '100' && point.expense === '25')).toBe(true);
   });
 
@@ -133,7 +162,12 @@ describe('Dashboard (e2e)', () => {
   });
 
   it('returns null savings rate when the selected period has no income and validates query values', async () => {
-    await createTransaction({ type: 'EXPENSE', amount: '20', currency: 'TRY', categoryId: expenseCategoryId });
+    await createTransaction({
+      type: 'EXPENSE',
+      amount: '20',
+      currency: 'TRY',
+      categoryId: expenseCategoryId,
+    });
     const summary = await request(application.getHttpServer())
       .get('/dashboard/summary')
       .query({ currency: 'TRY' })
@@ -152,12 +186,60 @@ describe('Dashboard (e2e)', () => {
     expect(invalidPeriod.status).toBe(400);
   });
 
-  async function registerUser(emailPrefix: string): Promise<AuthenticationResponse> {
-    const response = await request(application.getHttpServer()).post('/auth/register').send({
-      name: emailPrefix,
-      email: `${emailPrefix}@example.com`,
-      password: 'password123',
+  it('returns a weighted financial health score using the user default currency', async () => {
+    await prisma.user.update({
+      where: { id: user.user.id },
+      data: { defaultCurrency: Currency.USD },
     });
+    await createTransaction({
+      type: 'INCOME',
+      amount: '100',
+      currency: 'USD',
+      categoryId: incomeCategoryId,
+    });
+    await prisma.budget.create({
+      data: {
+        userId: user.user.id,
+        categoryId: expenseCategoryId,
+        amount: '100',
+        currency: Currency.USD,
+        period: BudgetPeriod.MONTHLY,
+        periodStart: currentMonthStart(),
+      },
+    });
+    await prisma.savingsGoal.create({
+      data: {
+        userId: user.user.id,
+        name: 'Emergency fund',
+        targetAmount: '100',
+        currentAmount: '50',
+        currency: Currency.USD,
+      },
+    });
+
+    const response = await request(application.getHttpServer())
+      .get('/dashboard/financial-health')
+      .set('Authorization', `Bearer ${user.accessToken}`);
+    const body = response.body as FinancialHealthResponse;
+
+    expect(response.status).toBe(200);
+    expect(body).toMatchObject({
+      currency: 'USD',
+      isReady: true,
+      missingSignals: [],
+      score: 88,
+      level: 'Çok iyi',
+    });
+  });
+
+  async function registerUser(emailPrefix: string): Promise<AuthenticationResponse> {
+    const response = await request(application.getHttpServer())
+      .post('/auth/register')
+      .send({
+        name: emailPrefix,
+        email: `${emailPrefix}@example.com`,
+        password: 'password123',
+      });
 
     expect(response.status).toBe(201);
     return response.body as AuthenticationResponse;
@@ -187,4 +269,15 @@ function monthsAgo(months: number): Date {
   value.setMonth(value.getMonth() - months);
 
   return value;
+}
+
+function currentMonthStart(): Date {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Istanbul',
+    year: 'numeric',
+    month: 'numeric',
+  }).formatToParts(new Date());
+  const year = Number(parts.find((part) => part.type === 'year')?.value);
+  const month = Number(parts.find((part) => part.type === 'month')?.value);
+  return new Date(Date.UTC(year, month - 1, 1));
 }
