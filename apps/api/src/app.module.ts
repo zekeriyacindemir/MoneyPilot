@@ -7,6 +7,7 @@ import { validateEnvironment } from './config/environment.validation';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { HealthModule } from './health/health.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { ReportsModule } from './reports/reports.module';
 import { SavingsGoalModule } from './savings-goal/savings-goal.module';
 import { TransactionModule } from './transaction/transaction.module';
 
@@ -21,6 +22,7 @@ import { TransactionModule } from './transaction/transaction.module';
     CategoryModule,
     DashboardModule,
     PrismaModule,
+    ReportsModule,
     SavingsGoalModule,
     HealthModule,
     TransactionModule,
