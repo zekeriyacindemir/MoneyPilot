@@ -396,7 +396,7 @@ function IncomeExpenseChart({
             type="button"
             onFocus={() => setActive(point)}
             onMouseEnter={() => setActive(point)}
-            className="group flex min-w-0 flex-1 items-end justify-center gap-0.5 rounded-sm focus-visible:outline-offset-2"
+            className="group flex h-full min-w-0 flex-1 items-end justify-center gap-0.5 rounded-sm focus-visible:outline-offset-2"
             aria-label={`${point.period}: ${formatAmount(point.income, currency)} gelir, ${formatAmount(point.expense, currency)} gider`}
           >
             <span
