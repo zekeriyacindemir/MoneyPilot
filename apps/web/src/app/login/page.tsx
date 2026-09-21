@@ -92,6 +92,7 @@ function LoginForm() {
             aria-invalid={Boolean(error)}
           />
         </AuthField>
+        <div className="text-right"><Link href="/forgot-password" className="text-sm font-medium text-[var(--primary)]">Şifremi unuttum</Link></div>
         <AuthFormError error={error} />
         <button type="submit" className={authButtonClassName} disabled={isSubmitting}>
           {isSubmitting ? 'Giriş yapılıyor...' : 'Giriş yap'}

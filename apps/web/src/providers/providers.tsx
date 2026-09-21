@@ -1,21 +1,21 @@
 'use client';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import type { ReactNode } from 'react';
-import { useState } from 'react';
-import { AuthProvider } from '@/features/auth/auth-context';
+import { useEffect, useState, type ReactNode } from 'react';
+import { AuthProvider, useAuth } from '@/features/auth/auth-context';
 import { ThemeProvider } from '@/features/theme/theme-provider';
 
-interface ProvidersProperties {
-  children: ReactNode;
+function SessionQueries({ children }: { children: ReactNode }) {
+  const [client] = useState(() => new QueryClient());
+  useEffect(() => () => { client.clear(); }, [client]);
+  return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
 }
 
-export function Providers({ children }: ProvidersProperties) {
-  const [queryClient] = useState(() => new QueryClient());
+function UserQueries({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
+  return <SessionQueries key={user?.id ?? 'anonymous'}>{children}</SessionQueries>;
+}
 
-  return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider><AuthProvider>{children}</AuthProvider></ThemeProvider>
-    </QueryClientProvider>
-  );
+export function Providers({ children }: { children: ReactNode }) {
+  return <ThemeProvider><AuthProvider><UserQueries>{children}</UserQueries></AuthProvider></ThemeProvider>;
 }

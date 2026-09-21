@@ -409,3 +409,7 @@ MoneyPilot is more than a finance tracker.
 It is a personal financial coach that helps users build better habits, achieve financial goals, and feel confident about their financial future.
 
 Every technical decision should support this vision.
+
+## September 2026 reliability update
+
+Query caches are scoped to authenticated user lifetimes. Budget and overview calculations share the cached ExchangeRateService, which coalesces concurrent requests. Completed goals contribute to financial health. Authentication has a per-process IP throttle; password recovery uses hashed one-time tokens and TLS SMTP. CI runs unit and PostgreSQL integration tests. The interface uses semantic light/dark tokens and Turkish navigation. AI integration remains deferred. See docs/operations.md for external setup requirements.

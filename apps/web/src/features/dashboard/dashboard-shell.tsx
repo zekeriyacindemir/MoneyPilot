@@ -5,13 +5,179 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useAuth } from '@/features/auth/auth-context';
 import { ThemeToggle } from '@/features/theme/theme-toggle';
+import { BrandLogo } from '@/features/brand/brand-logo';
 import { Icon } from './components/icons';
 import { Avatar, IconButton } from './components/ui';
 import { dashboardNavigation, getDashboardNavigation } from './navigation';
 
 export function DashboardShell({ children }: { children: ReactNode }) {
-  const pathname = usePathname(); const router = useRouter(); const { logout, user } = useAuth(); const [mobileOpen, setMobileOpen] = useState(false); const [userMenuOpen, setUserMenuOpen] = useState(false); const userMenuReference = useRef<HTMLDivElement>(null); const currentPage = getDashboardNavigation(pathname) ?? dashboardNavigation[0]!; const userLabel = user?.name || user?.email || 'MoneyPilot user';
-  useEffect(() => { const keydown = (event: KeyboardEvent) => { if (event.key === 'Escape') { setMobileOpen(false); setUserMenuOpen(false); } }; const pointerdown = (event: MouseEvent) => { if (!userMenuReference.current?.contains(event.target as Node)) setUserMenuOpen(false); }; document.addEventListener('keydown', keydown); document.addEventListener('mousedown', pointerdown); return () => { document.removeEventListener('keydown', keydown); document.removeEventListener('mousedown', pointerdown); }; }, []);
-  async function handleLogout() { try { await logout(); } finally { router.replace('/login'); } }
-  return <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] lg:flex">{mobileOpen ? <button type="button" aria-label="Menüyü kapat" className="fixed inset-0 z-30 bg-black/35 backdrop-blur-[1px] lg:hidden" onClick={() => setMobileOpen(false)} /> : null}<aside className={`fixed inset-y-0 left-0 z-40 flex w-[17rem] -translate-x-full flex-col border-r bg-[var(--sidebar)] px-3 py-4 transition-transform duration-200 ease-out lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${mobileOpen ? 'translate-x-0 shadow-2xl' : ''}`} aria-label="Ana navigasyon"><div className="flex items-center justify-between px-2"><Link href="/dashboard" className="group inline-flex items-center gap-3 rounded-xl"><span className="flex size-9 items-center justify-center rounded-xl bg-[var(--primary)] text-sm font-bold tracking-tight text-[var(--primary-foreground)]">M</span><span><span className="block text-sm font-semibold tracking-tight text-[var(--foreground)]">MoneyPilot</span><span className="block text-[11px] text-[var(--muted-foreground)]">Personal finance</span></span></Link><IconButton label="Menüyü kapat" className="lg:hidden" onClick={() => setMobileOpen(false)}><Icon name="close" className="size-5" /></IconButton></div><nav className="mt-9 flex-1" aria-label="Dashboard sayfaları"><p className="px-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--muted-foreground)]">Workspace</p><div className="mt-3 space-y-1">{dashboardNavigation.map((item) => { const active = pathname === item.href; return <Link key={item.href} href={item.href} aria-current={active ? 'page' : undefined} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium ${active ? 'bg-[var(--sidebar-active)] text-[var(--secondary-foreground)]' : 'text-[var(--sidebar-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]'}`} onClick={() => setMobileOpen(false)}><Icon name={item.icon} className="size-5" /><span>{item.title}</span></Link>; })}</div></nav><div className="rounded-xl border bg-[var(--muted)]/60 p-3"><p className="text-xs font-semibold text-[var(--foreground)]">Her şey tek yerde</p><p className="mt-1 text-xs leading-5 text-[var(--muted-foreground)]">Finansal görünümünüzü düzenli takip edin.</p></div></aside><div className="min-w-0 flex-1"><header className="sticky top-0 z-20 border-b bg-[var(--background)]/90 backdrop-blur"><div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8"><div className="flex min-w-0 items-center gap-2 sm:gap-3"><IconButton label="Menüyü aç" className="lg:hidden" aria-expanded={mobileOpen} onClick={() => setMobileOpen(true)}><Icon name="menu" className="size-5" /></IconButton><div className="min-w-0"><p className="truncate text-sm font-semibold text-[var(--foreground)]">{currentPage.title}</p><p className="hidden truncate text-xs text-[var(--muted-foreground)] sm:block">{currentPage.description}</p></div></div><div className="flex min-w-0 items-center gap-1.5 sm:gap-2"><ThemeToggle /><IconButton label="Bildirimler yakında" title="Bildirimler yakında"><Icon name="bell" className="size-5" /></IconButton><div ref={userMenuReference} className="relative"><button type="button" aria-expanded={userMenuOpen} aria-haspopup="menu" className="flex max-w-48 items-center gap-2 rounded-xl px-1.5 py-1.5 hover:bg-[var(--muted)] sm:max-w-72" onClick={() => setUserMenuOpen((open) => !open)}><Avatar name={userLabel} /><span className="hidden min-w-0 text-left sm:block"><span className="block truncate text-sm font-medium text-[var(--foreground)]">{user?.name || 'Hesabım'}</span><span className="block truncate text-xs text-[var(--muted-foreground)]">{user?.email}</span></span><Icon name="chevron" className={`hidden size-4 shrink-0 text-[var(--muted-foreground)] sm:block ${userMenuOpen ? 'rotate-90' : ''}`} /></button>{userMenuOpen ? <div role="menu" className="absolute right-0 top-[calc(100%+0.5rem)] w-56 rounded-xl border bg-[var(--card)] p-1.5 shadow-lg"><Link role="menuitem" href="/dashboard/settings" className="flex rounded-lg px-3 py-2 text-sm text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]" onClick={() => setUserMenuOpen(false)}>Ayarlar</Link><div className="my-1 border-t" /><button type="button" role="menuitem" className="flex w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-[var(--destructive)] hover:bg-[var(--muted)]" onClick={() => void handleLogout()}>Çıkış yap</button></div> : null}</div></div></div></header><main className="mx-auto w-full max-w-[1440px] px-4 py-7 sm:px-6 sm:py-9 lg:px-8">{children}</main></div></div>;
+  const pathname = usePathname();
+  const router = useRouter();
+  const { logout, user } = useAuth();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuReference = useRef<HTMLDivElement>(null);
+  const currentPage = getDashboardNavigation(pathname) ?? dashboardNavigation[0]!;
+  const userLabel = user?.name || user?.email || 'MoneyPilot user';
+  useEffect(() => {
+    const keydown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMobileOpen(false);
+        setUserMenuOpen(false);
+      }
+    };
+    const pointerdown = (event: MouseEvent) => {
+      if (!userMenuReference.current?.contains(event.target as Node)) setUserMenuOpen(false);
+    };
+    document.addEventListener('keydown', keydown);
+    document.addEventListener('mousedown', pointerdown);
+    return () => {
+      document.removeEventListener('keydown', keydown);
+      document.removeEventListener('mousedown', pointerdown);
+    };
+  }, []);
+  async function handleLogout() {
+    try {
+      await logout();
+    } finally {
+      router.replace('/login');
+    }
+  }
+  return (
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] lg:flex">
+      {mobileOpen ? (
+        <button
+          type="button"
+          aria-label="Menüyü kapat"
+          className="fixed inset-0 z-30 bg-black/35 backdrop-blur-[1px] lg:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
+      ) : null}
+      <aside
+        className={`fixed inset-y-0 left-0 z-40 flex w-[15.5rem] -translate-x-full flex-col border-r bg-[var(--sidebar)] px-3 py-4 transition-transform duration-200 ease-out lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${mobileOpen ? 'translate-x-0 shadow-2xl' : ''}`}
+        aria-label="Ana navigasyon"
+      >
+        <div className="flex items-center justify-between px-2">
+          <Link href="/dashboard" className="group inline-flex items-center gap-3 rounded-xl">
+              <BrandLogo className="h-11 w-40" priority />
+          </Link>
+          <IconButton
+            label="Menüyü kapat"
+            className="lg:hidden"
+            onClick={() => setMobileOpen(false)}
+          >
+            <Icon name="close" className="size-5" />
+          </IconButton>
+        </div>
+        <nav className="mt-9 flex-1" aria-label="Dashboard sayfaları">
+          <p className="px-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
+            FİNANSAL ALANIN
+          </p>
+          <div className="mt-3 space-y-1">
+            {dashboardNavigation.map((item) => {
+              const active = pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-current={active ? 'page' : undefined}
+                  className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium ${active ? 'bg-[var(--sidebar-active)] text-[var(--secondary-foreground)]' : 'text-[var(--sidebar-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]'}`}
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <Icon name={item.icon} className="size-5" />
+                  <span>{item.title}</span>{item.href.endsWith('/assistant') ? <span className="ml-auto rounded-md border px-1.5 py-0.5 text-[9px] font-medium">Yakında</span> : null}
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
+        <div className="rounded-xl border bg-[var(--muted)]/60 p-3">
+          <p className="text-xs font-semibold text-[var(--foreground)]">Küçük adımlar, büyük hedefler</p>
+          <p className="mt-1 text-xs leading-5 text-[var(--muted-foreground)]">
+            Bugün yaptığın bir kayıt, yarın daha net bir karar.
+          </p>
+        </div>
+      </aside>
+      <div className="min-w-0 flex-1">
+        <header className="sticky top-0 z-20 border-b bg-[var(--background)]/90 backdrop-blur">
+          <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+            <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+              <IconButton
+                label="Menüyü aç"
+                className="lg:hidden"
+                aria-expanded={mobileOpen}
+                onClick={() => setMobileOpen(true)}
+              >
+                <Icon name="menu" className="size-5" />
+              </IconButton>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-[var(--foreground)]">
+                  {currentPage.title}
+                </p>
+                <p className="hidden truncate text-xs text-[var(--muted-foreground)] sm:block">
+                  {currentPage.description}
+                </p>
+              </div>
+            </div>
+            <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
+              <ThemeToggle />
+              <IconButton disabled label="Bildirimler yakında" title="Bildirimler yakında">
+                <Icon name="bell" className="size-5" />
+              </IconButton>
+              <div ref={userMenuReference} className="relative">
+                <button
+                  type="button"
+                  aria-expanded={userMenuOpen}
+                  aria-haspopup="menu"
+                  className="flex max-w-48 items-center gap-2 rounded-xl px-1.5 py-1.5 hover:bg-[var(--muted)] sm:max-w-72"
+                  onClick={() => setUserMenuOpen((open) => !open)}
+                >
+                  <Avatar name={userLabel} />
+                  <span className="hidden min-w-0 text-left sm:block">
+                    <span className="block truncate text-sm font-medium text-[var(--foreground)]">
+                      {user?.name || 'Hesabım'}
+                    </span>
+                    <span className="block truncate text-xs text-[var(--muted-foreground)]">
+                      {user?.email}
+                    </span>
+                  </span>
+                  <Icon
+                    name="chevron"
+                    className={`hidden size-4 shrink-0 text-[var(--muted-foreground)] sm:block ${userMenuOpen ? 'rotate-90' : ''}`}
+                  />
+                </button>
+                {userMenuOpen ? (
+                  <div
+                    role="menu"
+                    className="absolute right-0 top-[calc(100%+0.5rem)] w-56 rounded-xl border bg-[var(--card)] p-1.5 shadow-lg"
+                  >
+                    <Link
+                      role="menuitem"
+                      href="/dashboard/settings"
+                      className="flex rounded-lg px-3 py-2 text-sm text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+                      onClick={() => setUserMenuOpen(false)}
+                    >
+                      Ayarlar
+                    </Link>
+                    <div className="my-1 border-t" />
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="flex w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-[var(--destructive)] hover:bg-[var(--muted)]"
+                      onClick={() => void handleLogout()}
+                    >
+                      Çıkış yap
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        </header>
+        <main className="mx-auto w-full max-w-[1440px] px-4 py-7 sm:px-6 sm:py-9 lg:px-10">
+          {children}
+        </main>
+      </div>
+    </div>
+  );
 }

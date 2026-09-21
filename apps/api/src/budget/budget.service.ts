@@ -1,5 +1,6 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { BudgetPeriod, CategoryType, Prisma } from '@prisma/client';
+import { ExchangeRateService } from '../dashboard/exchange-rate.service';
 import { PrismaService } from '../prisma/prisma.service';
 import type { CreateBudgetDto } from './dto/create-budget.dto';
 import type { ListBudgetsDto } from './dto/list-budgets.dto';
@@ -17,7 +18,7 @@ export interface BudgetResponse {
 
 @Injectable()
 export class BudgetService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService, private readonly exchangeRates: ExchangeRateService) {}
 
   async create(userId: string, dto: CreateBudgetDto): Promise<BudgetResponse> {
     const periodStart = this.normalizePeriodStart(dto.periodStart, dto.period);
@@ -68,8 +69,9 @@ export class BudgetService {
 
   private async toResponse(budget: BudgetWithCategory): Promise<BudgetResponse> {
     const periodStart = this.asUtcDate(budget.periodStart); const periodEnd = this.periodEnd(periodStart, budget.period);
-    const aggregate = await this.prisma.transaction.aggregate({ _sum: { amount: true }, where: { userId: budget.userId, categoryId: budget.categoryId, type: budget.category.type, currency: budget.currency, occurredAt: { gte: this.startOfIstanbulDay(periodStart), lte: this.endOfIstanbulDay(periodEnd) } } });
-    const actual = aggregate._sum.amount ?? new Prisma.Decimal(0); const amount = new Prisma.Decimal(budget.amount);
+    const totals = await this.prisma.transaction.groupBy({ by: ['currency'], _sum: { amount: true }, where: { userId: budget.userId, categoryId: budget.categoryId, type: budget.category.type, occurredAt: { gte: this.startOfIstanbulDay(periodStart), lte: this.endOfIstanbulDay(periodEnd) } } });
+    const converted = await Promise.all(totals.map((row) => this.exchangeRates.convert(row._sum.amount ?? new Prisma.Decimal(0), row.currency, budget.currency)));
+    const actual = converted.reduce((sum, amount) => sum.add(amount), new Prisma.Decimal(0)); const amount = new Prisma.Decimal(budget.amount);
     const progress = amount.isZero() ? new Prisma.Decimal(0) : actual.div(amount).mul(100);
     return { id: budget.id, categoryId: budget.categoryId, category: budget.category, type: budget.category.type, amount: amount.toString(), currency: budget.currency, period: budget.period, periodStart, periodEnd, actualAmount: actual.toString(), remainingAmount: amount.sub(actual).toString(), progressPercent: progress.toDecimalPlaces(2).toString(), createdAt: budget.createdAt, updatedAt: budget.updatedAt };
   }

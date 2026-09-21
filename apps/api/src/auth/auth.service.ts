@@ -305,6 +305,7 @@ export class AuthService {
     }
     const now = new Date();
     await this.prisma.$transaction([
+      this.prisma.passwordReset.deleteMany({ where: { userId } }),
       this.prisma.user.update({
         where: { id: userId },
         data: { passwordHash: await argon2.hash(dto.newPassword, { type: argon2.argon2id }) },

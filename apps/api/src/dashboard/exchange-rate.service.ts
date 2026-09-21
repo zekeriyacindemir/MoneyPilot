@@ -13,6 +13,8 @@ export class ExchangeRateService {
   private readonly logger = new Logger(ExchangeRateService.name);
   private readonly cache = new Map<Currency, { expiresAt: number; rates: Map<Currency, number> }>();
 
+  private readonly pending = new Map<Currency, Promise<Map<Currency, number>>>();
+
   async convert(amount: Prisma.Decimal, from: Currency, to: Currency): Promise<Prisma.Decimal> {
     if (from === to) return amount;
 
@@ -29,6 +31,14 @@ export class ExchangeRateService {
     const cached = this.cache.get(base);
     if (cached && cached.expiresAt > Date.now()) return cached.rates;
 
+    const pending = this.pending.get(base);
+    if (pending) return pending;
+    const request = this.fetchRates(base).finally(() => this.pending.delete(base));
+    this.pending.set(base, request);
+    return request;
+  }
+
+  private async fetchRates(base: Currency): Promise<Map<Currency, number>> {
     const symbols = (Object.values(Currency) as Currency[]).filter((currency) => currency !== base);
     const url = new URL('https://api.frankfurter.dev/v1/latest');
     url.searchParams.set('base', base);

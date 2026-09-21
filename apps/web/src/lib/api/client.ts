@@ -8,6 +8,8 @@ interface RetryableRequestConfig extends InternalAxiosRequestConfig {
 
 const refreshExcludedEndpoints = new Set([
   '/auth/login',
+  '/auth/forgot-password',
+  '/auth/reset-password',
   '/auth/logout',
   '/auth/refresh',
   '/auth/register',

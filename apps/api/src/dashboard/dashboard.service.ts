@@ -215,7 +215,7 @@ export class DashboardService {
         select: { id: true, categoryId: true, amount: true, currency: true, category: { select: { name: true } } },
       }),
       this.prisma.savingsGoal.findMany({
-        where: { userId, status: GoalStatus.ACTIVE },
+        where: { userId, status: { in: [GoalStatus.ACTIVE, GoalStatus.COMPLETED] } },
         select: { name: true, currentAmount: true, targetAmount: true, currency: true },
       }),
     ]);
@@ -268,8 +268,8 @@ export class DashboardService {
         score: goalScore,
         description:
           goalScore === null
-            ? 'Aktif birikim hedefi yok.'
-            : `${goals.length} aktif birikim hedefiniz değerlendirildi.`,
+            ? 'Aktif veya tamamlanmış birikim hedefi yok.'
+            : `${goals.length} aktif veya tamamlanmış birikim hedefiniz değerlendirildi.`,
       },
     ];
     if (missingSignals.length > 0) {

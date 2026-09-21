@@ -1,3 +1,4 @@
+import type { Request, Response, NextFunction } from 'express';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
@@ -10,6 +11,13 @@ async function bootstrap(): Promise<void> {
   const configuration = application.get(ConfigService<Environment, true>);
   const environment = configuration.get('NODE_ENV', { infer: true });
 
+  application.use((_request: Request, response: Response, next: NextFunction) => {
+    response.setHeader('X-Content-Type-Options', 'nosniff');
+    response.setHeader('X-Frame-Options', 'DENY');
+    response.setHeader('Referrer-Policy', 'no-referrer');
+    response.setHeader('Cache-Control', 'no-store');
+    next();
+  });
   application.enableCors({
     origin: configuration.get('CORS_ORIGIN', { infer: true }),
     credentials: true,

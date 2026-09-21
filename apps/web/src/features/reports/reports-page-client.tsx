@@ -54,7 +54,7 @@ function ReportContent({ report }: { report: MonthlyReport }) {
       <DashboardCard className="p-5 sm:p-6">
         <SectionHeader title="Ayın finansal sonucu" description={`${monthLabel} · ${report.currency}`} />
         <p className={`mt-6 text-4xl font-semibold tracking-tight ${netPositive ? 'text-[var(--success)]' : 'text-[var(--destructive)]'}`}>{netPositive ? '+' : ''}{formatAmount(report.net, report.currency)}</p>
-        <p className="mt-1 text-sm text-[var(--muted-foreground)]">Gelir ve giderleriniz arasındaki net fark</p>
+        <p className="mt-1 text-sm text-[var(--muted-foreground)]">Gelir ve giderleriniz arasındaki net fark · Güncel kurla</p>
         <div className="mt-6 grid grid-cols-2 gap-3 border-t pt-5 text-sm">
           <div><p className="text-[var(--muted-foreground)]">Gelir</p><p className="mt-1 font-semibold text-[var(--success)]">{formatAmount(report.totalIncome, report.currency)}</p></div>
           <div><p className="text-[var(--muted-foreground)]">Gider</p><p className="mt-1 font-semibold text-[var(--destructive)]">{formatAmount(report.totalExpense, report.currency)}</p></div>

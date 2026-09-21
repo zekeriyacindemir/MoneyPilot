@@ -33,7 +33,7 @@ export class SavingsGoalService {
     const targetAmount = new Prisma.Decimal(dto.targetAmount ?? existing.targetAmount);
     const currentAmount = new Prisma.Decimal(existing.currentAmount);
     if (dto.status === GoalStatus.COMPLETED && currentAmount.lt(targetAmount)) throw new BadRequestException('A goal can only be completed after its target amount is reached.');
-    const completion = this.completionData(currentAmount, targetAmount, dto.status, existing.completedAt);
+    const completion = this.completionData(currentAmount, targetAmount, dto.status, existing.completedAt, existing.status);
     const goal = await this.prisma.savingsGoal.update({ where: { id }, data: { ...(dto.name !== undefined ? { name: dto.name } : {}), ...(dto.targetAmount ? { targetAmount: dto.targetAmount } : {}), ...(dto.currency ? { currency: dto.currency } : {}), ...(dto.priority ? { priority: dto.priority } : {}), ...(dto.targetDate !== undefined ? { targetDate: dto.targetDate ? this.asCalendarDate(dto.targetDate) : null } : {}), ...completion } });
     return this.toResponse(goal);
   }
@@ -42,7 +42,7 @@ export class SavingsGoalService {
     const existing = await this.getOwned(userId, id);
     const currentAmount = new Prisma.Decimal(dto.currentAmount);
     const targetAmount = new Prisma.Decimal(existing.targetAmount);
-    const completion = this.completionData(currentAmount, targetAmount, undefined, existing.completedAt);
+    const completion = this.completionData(currentAmount, targetAmount, undefined, existing.completedAt, existing.status);
     const goal = await this.prisma.savingsGoal.update({ where: { id }, data: { currentAmount: dto.currentAmount, ...completion } });
     return this.toResponse(goal);
   }
@@ -50,7 +50,8 @@ export class SavingsGoalService {
   async remove(userId: string, id: string): Promise<void> { const result = await this.prisma.savingsGoal.deleteMany({ where: { id, userId } }); if (result.count !== 1) throw new NotFoundException('Savings goal not found.'); }
 
   private async getOwned(userId: string, id: string): Promise<SavingsGoalRecord> { const goal = await this.prisma.savingsGoal.findFirst({ where: { id, userId } }); if (!goal) throw new NotFoundException('Savings goal not found.'); return goal; }
-  private completionData(current: Prisma.Decimal, target: Prisma.Decimal, requested: GoalStatus | undefined, completedAt: Date | null): { status: GoalStatus; completedAt: Date | null } {
+  private completionData(current: Prisma.Decimal, target: Prisma.Decimal, requested: GoalStatus | undefined, completedAt: Date | null, existingStatus: GoalStatus): { status: GoalStatus; completedAt: Date | null } {
+    if (requested === undefined && (existingStatus === GoalStatus.PAUSED || existingStatus === GoalStatus.CANCELED)) return { status: existingStatus, completedAt: null };
     if (requested === GoalStatus.ACTIVE || requested === GoalStatus.PAUSED || requested === GoalStatus.CANCELED) return { status: requested, completedAt: null };
     if (requested === GoalStatus.COMPLETED || current.greaterThanOrEqualTo(target)) return { status: GoalStatus.COMPLETED, completedAt: completedAt ?? new Date() };
     return { status: GoalStatus.ACTIVE, completedAt: null };

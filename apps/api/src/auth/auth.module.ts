@@ -3,6 +3,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule, type JwtSignOptions } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import type { Environment } from '../config/environment.validation';
+import { AuthThrottleGuard } from './guards/auth-throttle.guard';
+import { PasswordMailer } from './password-mailer.service';
+import { PasswordRecoveryService } from './password-recovery.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtAccessStrategy } from './strategies/jwt-access.strategy';
@@ -25,7 +28,7 @@ import { JwtAccessStrategy } from './strategies/jwt-access.strategy';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtAccessStrategy],
+  providers: [AuthService, JwtAccessStrategy, AuthThrottleGuard, PasswordMailer, PasswordRecoveryService],
   exports: [AuthService, JwtModule, PassportModule],
 })
 export class AuthModule {}

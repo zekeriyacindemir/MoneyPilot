@@ -2,6 +2,9 @@ import { Body, Controller, Delete, Get, HttpCode, HttpStatus, NotFoundException,
 import { ConfigService } from '@nestjs/config';
 import type { Request, Response } from 'express';
 import type { Environment } from '../config/environment.validation';
+import { AuthThrottleGuard } from './guards/auth-throttle.guard';
+import { PasswordRecoveryService } from './password-recovery.service';
+import { ForgotPasswordDto, ResetPasswordDto } from './dto/password-recovery.dto';
 import { AuthService, type AuthenticatedUser } from './auth.service';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { Public } from './decorators/public.decorator';
@@ -22,11 +25,28 @@ interface AuthenticationResponse {
 }
 
 @Controller('auth')
+@UseGuards(AuthThrottleGuard)
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
+    private readonly recovery: PasswordRecoveryService,
     private readonly configuration: ConfigService<Environment, true>,
   ) {}
+
+  @Public()
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.ACCEPTED)
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    await this.recovery.request(dto.email);
+    return { message: 'Bu adresle bir hesap varsa şifre yenileme bağlantısı gönderilecektir.' };
+  }
+
+  @Public()
+  @Post('reset-password')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async resetPassword(@Body() dto: ResetPasswordDto): Promise<void> {
+    await this.recovery.reset(dto.token, dto.password);
+  }
 
   @Public()
   @Post('register')

@@ -19,14 +19,10 @@ const systemCategories = [
 ];
 
 async function main() {
-  await prisma.category.createMany({
-    data: systemCategories.map((category) => ({
-      ...category,
-      isSystem: true,
-      userId: null,
-    })),
-    skipDuplicates: true,
-  });
+  for (const category of systemCategories) {
+    const existing = await prisma.category.findFirst({ where: { name: category.name, type: category.type, isSystem: true, userId: null }, select: { id: true } });
+    if (!existing) await prisma.category.create({ data: { ...category, isSystem: true, userId: null } });
+  }
 }
 
 main()

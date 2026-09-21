@@ -1,3 +1,4 @@
+import { invalidateFinances } from '@/lib/api/invalidate-finances';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   createTransaction,
@@ -37,6 +38,7 @@ export function useCreateTransactionMutation() {
     mutationFn: (request: CreateTransactionRequest) => createTransaction(request),
     onSuccess: (transaction) =>
       Promise.all([
+        invalidateFinances(queryClient),
         queryClient.invalidateQueries({ queryKey: transactionQueryKeys.all }),
         queryClient.invalidateQueries({ queryKey: transactionQueryKeys.detail(transaction.id) }),
       ]),
@@ -51,6 +53,7 @@ export function useUpdateTransactionMutation() {
       updateTransaction({ id, request }),
     onSuccess: (transaction) =>
       Promise.all([
+        invalidateFinances(queryClient),
         queryClient.invalidateQueries({ queryKey: transactionQueryKeys.all }),
         queryClient.invalidateQueries({ queryKey: transactionQueryKeys.detail(transaction.id) }),
       ]),
@@ -64,6 +67,7 @@ export function useDeleteTransactionMutation() {
     mutationFn: (id: string) => deleteTransaction(id),
     onSuccess: (_result, id) =>
       Promise.all([
+        invalidateFinances(queryClient),
         queryClient.invalidateQueries({ queryKey: transactionQueryKeys.all }),
         queryClient.removeQueries({ queryKey: transactionQueryKeys.detail(id) }),
       ]),

@@ -1,6 +1,6 @@
 # MoneyPilot
 
-MoneyPilot is an AI-powered personal finance coach.
+MoneyPilot is a personal finance application with budgets, goals, reports and rule-based coaching. AI integration is intentionally deferred.
 
 ## Requirements
 
@@ -14,6 +14,9 @@ MoneyPilot is an AI-powered personal finance coach.
 2. Copy `apps/web/.env.example` to `apps/web/.env.local`.
 3. Run `npm install`.
 4. Run `docker compose up -d postgres`.
-5. Run `npm run dev:api` and `npm run dev:web` in separate terminals.
+5. Run `npx prisma migrate deploy --schema apps/api/prisma/schema.prisma` and `npm run prisma:seed --workspace=@moneypilot/api`.
+6. Run `npm run dev:api` and `npm run dev:web` in separate terminals.
 
 The API health endpoint is available at `http://localhost:3001/health`.
+
+See [operations](docs/operations.md) for tests, SMTP recovery and release preparation.
