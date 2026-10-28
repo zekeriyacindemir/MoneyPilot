@@ -36,6 +36,7 @@ jobs:
       - run: npm run prisma:generate --workspace=@moneypilot/api
       - run: npx prisma migrate deploy --schema apps/api/prisma/schema.prisma
       - run: npm test --workspace=@moneypilot/api
+      - run: npm run format:check
       - run: npm run lint
       - run: npm run typecheck
       - run: npm run build
