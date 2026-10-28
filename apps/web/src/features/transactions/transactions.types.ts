@@ -83,3 +83,11 @@ export interface UpdateTransactionRequest {
   note?: string;
   occurredAt?: string;
 }
+
+export interface CreateCategoryRequest {
+  name: string;
+  type: TransactionType;
+  color?: string;
+}
+
+export type UpdateCategoryRequest = Partial<Omit<CreateCategoryRequest, 'type'>>;

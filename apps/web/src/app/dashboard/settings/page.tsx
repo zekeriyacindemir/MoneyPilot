@@ -17,6 +17,7 @@ import {
 } from '@/features/auth/auth.api';
 import { type Currency, type PreferencesRequest } from '@/features/auth/auth.types';
 import { type Theme, useTheme } from '@/features/theme/theme-provider';
+import { CategoryManager } from '@/features/transactions/components/category-manager';
 
 const input =
   'mt-1.5 h-11 w-full rounded-xl border bg-[var(--background)] px-3 text-sm outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--secondary)]';
@@ -346,6 +347,7 @@ export default function SettingsPage() {
               ))}
             </div>
           </DashboardCard>
+          <CategoryManager />
           <DashboardCard className="p-5 sm:p-6">
             <SectionHeader
               title="Bildirimler"

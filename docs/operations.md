@@ -34,6 +34,8 @@ Tokens are random, SHA-256 hashed in the database, valid for 20 minutes, single-
 
 Transaction amounts remain in their original currency. Dashboard, reports and budgets use cached current FX rates, so past displayed totals may change as rates change. They are not historical accounting valuations. Savings balances are manually maintained. Completed goals remain in the financial health score; paused/canceled goals retain their state on edits.
 
+Users manage private categories from Settings (up to 100 per user). Names are unique per type, case-insensitively, including system category names. A category type cannot change after creation, and a category referenced by transactions or budgets cannot be deleted; the API returns 409 with usage counts. System categories are read-only.
+
 ## Preview and AI
 
 The landing-page figures are labeled sample data. Authenticated pages only use the API. AI Assistant remains a coming-soon screen and makes no model calls. Notification preferences are stored, but scheduled email/push notifications are not implemented.
