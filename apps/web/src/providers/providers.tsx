@@ -7,7 +7,12 @@ import { ThemeProvider } from '@/features/theme/theme-provider';
 
 function SessionQueries({ children }: { children: ReactNode }) {
   const [client] = useState(() => new QueryClient());
-  useEffect(() => () => { client.clear(); }, [client]);
+  useEffect(
+    () => () => {
+      client.clear();
+    },
+    [client],
+  );
   return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
 }
 
@@ -17,5 +22,11 @@ function UserQueries({ children }: { children: ReactNode }) {
 }
 
 export function Providers({ children }: { children: ReactNode }) {
-  return <ThemeProvider><AuthProvider><UserQueries>{children}</UserQueries></AuthProvider></ThemeProvider>;
+  return (
+    <ThemeProvider>
+      <AuthProvider>
+        <UserQueries>{children}</UserQueries>
+      </AuthProvider>
+    </ThemeProvider>
+  );
 }

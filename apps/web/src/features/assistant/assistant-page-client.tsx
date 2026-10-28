@@ -11,10 +11,13 @@ export function AssistantPageClient() {
         description="Finansal koçluk deneyimimiz üzerinde çalışıyoruz."
       />
       <DashboardCard className="mx-auto max-w-2xl p-8 text-center sm:p-12">
-        <span className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-[var(--secondary)] text-lg font-bold text-[var(--primary)]">AI</span>
+        <span className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-[var(--secondary)] text-lg font-bold text-[var(--primary)]">
+          AI
+        </span>
         <h2 className="mt-5 text-xl font-semibold text-[var(--card-foreground)]">Yakında burada</h2>
         <p className="mt-3 text-sm leading-6 text-[var(--muted-foreground)]">
-          Size finansal alışkanlıklarınız için rehberlik edecek AI Asistan yakında kullanıma açılacak.
+          Size finansal alışkanlıklarınız için rehberlik edecek AI Asistan yakında kullanıma
+          açılacak.
         </p>
       </DashboardCard>
     </div>

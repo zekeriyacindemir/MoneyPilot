@@ -1,4 +1,17 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -19,7 +32,11 @@ import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { ListTransactionsDto } from './dto/list-transactions.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
-import { TransactionService, type TransactionListResponse, type TransactionResponse } from './transaction.service';
+import {
+  TransactionService,
+  type TransactionListResponse,
+  type TransactionResponse,
+} from './transaction.service';
 
 const transactionExample = {
   id: '7c83b7b1-977d-4c35-a0d4-0be4ab8f5299',
@@ -51,7 +68,9 @@ const listTransactionExample = {
 
 const validationErrorExample = {
   statusCode: 400,
-  message: ['amount must match /^(?=.*[1-9])(?:0|[1-9]\\d{0,14})(?:\\.\\d{1,4})?$/ regular expression'],
+  message: [
+    'amount must match /^(?=.*[1-9])(?:0|[1-9]\\d{0,14})(?:\\.\\d{1,4})?$/ regular expression',
+  ],
   error: 'Bad Request',
 };
 
@@ -107,27 +126,67 @@ export class TransactionController {
       },
     },
   })
-  @ApiCreatedResponse({ description: 'Transaction created.', schema: { example: transactionExample } })
-  @ApiBadRequestResponse({ description: 'Validation failed or category type does not match.', schema: { example: validationErrorExample } })
-  @ApiUnauthorizedResponse({ description: 'Access token is missing or invalid.', schema: { example: unauthorizedErrorExample } })
-  @ApiForbiddenResponse({ description: 'The category belongs to another user.', schema: { example: forbiddenErrorExample } })
-  @ApiNotFoundResponse({ description: 'Category does not exist.', schema: { example: { ...notFoundErrorExample, message: 'Category not found.' } } })
-  @ApiConflictResponse({ description: 'Category was deleted during the request.', schema: { example: conflictErrorExample } })
-  create(@CurrentUser() user: { sub: string }, @Body() createDto: CreateTransactionDto): Promise<TransactionResponse> {
+  @ApiCreatedResponse({
+    description: 'Transaction created.',
+    schema: { example: transactionExample },
+  })
+  @ApiBadRequestResponse({
+    description: 'Validation failed or category type does not match.',
+    schema: { example: validationErrorExample },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Access token is missing or invalid.',
+    schema: { example: unauthorizedErrorExample },
+  })
+  @ApiForbiddenResponse({
+    description: 'The category belongs to another user.',
+    schema: { example: forbiddenErrorExample },
+  })
+  @ApiNotFoundResponse({
+    description: 'Category does not exist.',
+    schema: { example: { ...notFoundErrorExample, message: 'Category not found.' } },
+  })
+  @ApiConflictResponse({
+    description: 'Category was deleted during the request.',
+    schema: { example: conflictErrorExample },
+  })
+  create(
+    @CurrentUser() user: { sub: string },
+    @Body() createDto: CreateTransactionDto,
+  ): Promise<TransactionResponse> {
     return this.transactionService.create(user.sub, createDto);
   }
 
   @Get()
   @ApiOperation({
     summary: 'List transactions',
-    description: 'Returns only the authenticated user’s transactions with filters, sorting, and pagination.',
+    description:
+      'Returns only the authenticated user’s transactions with filters, sorting, and pagination.',
   })
-  @ApiOkResponse({ description: 'Paginated transaction list.', schema: { example: listTransactionExample } })
-  @ApiBadRequestResponse({ description: 'Invalid pagination, sort, or date range.', schema: { example: validationErrorExample } })
-  @ApiUnauthorizedResponse({ description: 'Access token is missing or invalid.', schema: { example: unauthorizedErrorExample } })
-  @ApiForbiddenResponse({ description: 'The category filter belongs to another user.', schema: { example: forbiddenErrorExample } })
-  @ApiNotFoundResponse({ description: 'Category filter does not exist.', schema: { example: { ...notFoundErrorExample, message: 'Category not found.' } } })
-  findAll(@CurrentUser() user: { sub: string }, @Query() query: ListTransactionsDto): Promise<TransactionListResponse> {
+  @ApiOkResponse({
+    description: 'Paginated transaction list.',
+    schema: { example: listTransactionExample },
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid pagination, sort, or date range.',
+    schema: { example: validationErrorExample },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Access token is missing or invalid.',
+    schema: { example: unauthorizedErrorExample },
+  })
+  @ApiForbiddenResponse({
+    description: 'The category filter belongs to another user.',
+    schema: { example: forbiddenErrorExample },
+  })
+  @ApiNotFoundResponse({
+    description: 'Category filter does not exist.',
+    schema: { example: { ...notFoundErrorExample, message: 'Category not found.' } },
+  })
+  findAll(
+    @CurrentUser() user: { sub: string },
+    @Query() query: ListTransactionsDto,
+  ): Promise<TransactionListResponse> {
     return this.transactionService.findAll(user.sub, query);
   }
 
@@ -138,10 +197,22 @@ export class TransactionController {
     description: 'Returns one transaction owned by the authenticated user.',
   })
   @ApiOkResponse({ description: 'Transaction found.', schema: { example: transactionExample } })
-  @ApiBadRequestResponse({ description: 'Transaction id is not a UUID.', schema: { example: validationErrorExample } })
-  @ApiUnauthorizedResponse({ description: 'Access token is missing or invalid.', schema: { example: unauthorizedErrorExample } })
-  @ApiNotFoundResponse({ description: 'Transaction does not exist or is not owned by the caller.', schema: { example: notFoundErrorExample } })
-  findOne(@CurrentUser() user: { sub: string }, @Param('id', new ParseUUIDPipe()) id: string): Promise<TransactionResponse> {
+  @ApiBadRequestResponse({
+    description: 'Transaction id is not a UUID.',
+    schema: { example: validationErrorExample },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Access token is missing or invalid.',
+    schema: { example: unauthorizedErrorExample },
+  })
+  @ApiNotFoundResponse({
+    description: 'Transaction does not exist or is not owned by the caller.',
+    schema: { example: notFoundErrorExample },
+  })
+  findOne(
+    @CurrentUser() user: { sub: string },
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<TransactionResponse> {
     return this.transactionService.findOne(user.sub, id);
   }
 
@@ -160,12 +231,32 @@ export class TransactionController {
       },
     },
   })
-  @ApiOkResponse({ description: 'Transaction updated.', schema: { example: { ...transactionExample, amount: '150.75', note: 'Updated grocery shopping note' } } })
-  @ApiBadRequestResponse({ description: 'Validation failed or category type does not match.', schema: { example: validationErrorExample } })
-  @ApiUnauthorizedResponse({ description: 'Access token is missing or invalid.', schema: { example: unauthorizedErrorExample } })
-  @ApiForbiddenResponse({ description: 'The category belongs to another user.', schema: { example: forbiddenErrorExample } })
-  @ApiNotFoundResponse({ description: 'Transaction or category does not exist.', schema: { example: notFoundErrorExample } })
-  @ApiConflictResponse({ description: 'Category was deleted during the request.', schema: { example: conflictErrorExample } })
+  @ApiOkResponse({
+    description: 'Transaction updated.',
+    schema: {
+      example: { ...transactionExample, amount: '150.75', note: 'Updated grocery shopping note' },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: 'Validation failed or category type does not match.',
+    schema: { example: validationErrorExample },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Access token is missing or invalid.',
+    schema: { example: unauthorizedErrorExample },
+  })
+  @ApiForbiddenResponse({
+    description: 'The category belongs to another user.',
+    schema: { example: forbiddenErrorExample },
+  })
+  @ApiNotFoundResponse({
+    description: 'Transaction or category does not exist.',
+    schema: { example: notFoundErrorExample },
+  })
+  @ApiConflictResponse({
+    description: 'Category was deleted during the request.',
+    schema: { example: conflictErrorExample },
+  })
   update(
     @CurrentUser() user: { sub: string },
     @Param('id', new ParseUUIDPipe()) id: string,
@@ -182,10 +273,22 @@ export class TransactionController {
     description: 'Deletes a transaction owned by the authenticated user.',
   })
   @ApiNoContentResponse({ description: 'Transaction deleted.' })
-  @ApiBadRequestResponse({ description: 'Transaction id is not a UUID.', schema: { example: validationErrorExample } })
-  @ApiUnauthorizedResponse({ description: 'Access token is missing or invalid.', schema: { example: unauthorizedErrorExample } })
-  @ApiNotFoundResponse({ description: 'Transaction does not exist or is not owned by the caller.', schema: { example: notFoundErrorExample } })
-  async remove(@CurrentUser() user: { sub: string }, @Param('id', new ParseUUIDPipe()) id: string): Promise<void> {
+  @ApiBadRequestResponse({
+    description: 'Transaction id is not a UUID.',
+    schema: { example: validationErrorExample },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Access token is missing or invalid.',
+    schema: { example: unauthorizedErrorExample },
+  })
+  @ApiNotFoundResponse({
+    description: 'Transaction does not exist or is not owned by the caller.',
+    schema: { example: notFoundErrorExample },
+  })
+  async remove(
+    @CurrentUser() user: { sub: string },
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<void> {
     await this.transactionService.remove(user.sub, id);
   }
 }

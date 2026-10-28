@@ -59,7 +59,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
       >
         <div className="flex items-center justify-between px-2">
           <Link href="/dashboard" className="group inline-flex items-center gap-3 rounded-xl">
-              <BrandLogo className="h-11 w-40" priority />
+            <BrandLogo className="h-11 w-40" priority />
           </Link>
           <IconButton
             label="Menüyü kapat"
@@ -85,14 +85,21 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                   onClick={() => setMobileOpen(false)}
                 >
                   <Icon name={item.icon} className="size-5" />
-                  <span>{item.title}</span>{item.href.endsWith('/assistant') ? <span className="ml-auto rounded-md border px-1.5 py-0.5 text-[9px] font-medium">Yakında</span> : null}
+                  <span>{item.title}</span>
+                  {item.href.endsWith('/assistant') ? (
+                    <span className="ml-auto rounded-md border px-1.5 py-0.5 text-[9px] font-medium">
+                      Yakında
+                    </span>
+                  ) : null}
                 </Link>
               );
             })}
           </div>
         </nav>
         <div className="rounded-xl border bg-[var(--muted)]/60 p-3">
-          <p className="text-xs font-semibold text-[var(--foreground)]">Küçük adımlar, büyük hedefler</p>
+          <p className="text-xs font-semibold text-[var(--foreground)]">
+            Küçük adımlar, büyük hedefler
+          </p>
           <p className="mt-1 text-xs leading-5 text-[var(--muted-foreground)]">
             Bugün yaptığın bir kayıt, yarın daha net bir karar.
           </p>

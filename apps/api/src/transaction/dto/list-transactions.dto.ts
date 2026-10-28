@@ -1,7 +1,18 @@
 import { Type } from 'class-transformer';
 import { TransactionType } from '@prisma/client';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsDate, IsEnum, IsIn, IsInt, IsOptional, IsString, IsUUID, Max, MaxLength, Min } from 'class-validator';
+import {
+  IsDate,
+  IsEnum,
+  IsIn,
+  IsInt,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Max,
+  MaxLength,
+  Min,
+} from 'class-validator';
 
 export class ListTransactionsDto {
   @ApiPropertyOptional({ minimum: 1, default: 1, example: 1 })
@@ -47,7 +58,10 @@ export class ListTransactionsDto {
   @MaxLength(500)
   search?: string;
 
-  @ApiPropertyOptional({ enum: ['occurredAt', 'amount', 'createdAt', 'updatedAt'], example: 'occurredAt' })
+  @ApiPropertyOptional({
+    enum: ['occurredAt', 'amount', 'createdAt', 'updatedAt'],
+    example: 'occurredAt',
+  })
   @IsOptional()
   @IsIn(['occurredAt', 'amount', 'createdAt', 'updatedAt'])
   sortBy?: 'occurredAt' | 'amount' | 'createdAt' | 'updatedAt';

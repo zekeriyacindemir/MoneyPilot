@@ -6,3 +6,7 @@ package-lock.json
 apps/api/generated
 codex.md
 project.md
+.claude
+.agents
+apps/web/next-env.d.ts
+*.log

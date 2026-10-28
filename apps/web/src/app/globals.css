@@ -1,58 +1,230 @@
 @import 'tailwindcss';
 
 :root {
- --background: #f6f7f9; --foreground: #172338; --card: #ffffff; --card-foreground: #172338;
- --muted: #eef1f5; --muted-foreground: #647185; --border: #e3e8ee; --input: #d4dce5;
- --primary: #2862e9; --primary-foreground: #ffffff; --secondary: #edf3ff; --secondary-foreground: #2454bb;
- --accent: #e3f3ee; --accent-foreground: #166652; --destructive: #c24453; --destructive-foreground: #ffffff;
- --success: #158266; --success-muted: #e8f5ef; --warning: #996719; --warning-muted: #fcf3df;
- --ring: #2862e9; --sidebar: #ffffff; --sidebar-foreground: #67768b; --sidebar-active: #edf3ff;
- --chart-income: #2862e9; --chart-expense: #a8bfed; --glow: rgb(40 98 233 / .12);
+  --background: #f6f7f9;
+  --foreground: #172338;
+  --card: #ffffff;
+  --card-foreground: #172338;
+  --muted: #eef1f5;
+  --muted-foreground: #647185;
+  --border: #e3e8ee;
+  --input: #d4dce5;
+  --primary: #2862e9;
+  --primary-foreground: #ffffff;
+  --secondary: #edf3ff;
+  --secondary-foreground: #2454bb;
+  --accent: #e3f3ee;
+  --accent-foreground: #166652;
+  --destructive: #c24453;
+  --destructive-foreground: #ffffff;
+  --success: #158266;
+  --success-muted: #e8f5ef;
+  --warning: #996719;
+  --warning-muted: #fcf3df;
+  --ring: #2862e9;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #67768b;
+  --sidebar-active: #edf3ff;
+  --chart-income: #2862e9;
+  --chart-expense: #a8bfed;
+  --glow: rgb(40 98 233 / 0.12);
 }
 .dark {
- --background: #101722; --foreground: #e8edf5; --card: #182231; --card-foreground: #e8edf5;
- --muted: #243044; --muted-foreground: #a1afc3; --border: #2c394d; --input: #43516a;
- --primary: #8badff; --primary-foreground: #101d37; --secondary: #253858; --secondary-foreground: #b6ceff;
- --accent: #183d35; --accent-foreground: #8cdac2; --destructive: #ff9aa7; --destructive-foreground: #37141c;
- --success: #6bd4b2; --success-muted: #1c3c34; --warning: #f2c575; --warning-muted: #423720;
- --ring: #8badff; --sidebar: #151e2b; --sidebar-foreground: #a1afc3; --sidebar-active: #253858;
- --chart-income: #8badff; --chart-expense: #526e9c; --glow: rgb(139 173 255 / .12);
+  --background: #101722;
+  --foreground: #e8edf5;
+  --card: #182231;
+  --card-foreground: #e8edf5;
+  --muted: #243044;
+  --muted-foreground: #a1afc3;
+  --border: #2c394d;
+  --input: #43516a;
+  --primary: #8badff;
+  --primary-foreground: #101d37;
+  --secondary: #253858;
+  --secondary-foreground: #b6ceff;
+  --accent: #183d35;
+  --accent-foreground: #8cdac2;
+  --destructive: #ff9aa7;
+  --destructive-foreground: #37141c;
+  --success: #6bd4b2;
+  --success-muted: #1c3c34;
+  --warning: #f2c575;
+  --warning-muted: #423720;
+  --ring: #8badff;
+  --sidebar: #151e2b;
+  --sidebar-foreground: #a1afc3;
+  --sidebar-active: #253858;
+  --chart-income: #8badff;
+  --chart-expense: #526e9c;
+  --glow: rgb(139 173 255 / 0.12);
 }
-* { border-color: var(--border); }
-html { background: var(--background); scroll-behavior: smooth; }
-body { min-height: 100vh; margin: 0; background: var(--background); color: var(--foreground); font-family: 'Segoe UI', Arial, sans-serif; -webkit-font-smoothing: antialiased; }
-button, a { -webkit-tap-highlight-color: transparent; }
-button:not(:disabled), a { cursor: pointer; }
-button, a, input, select, textarea { transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease; }
-::selection { background: var(--secondary); color: var(--foreground); }
-:focus-visible { outline: 2px solid var(--ring); outline-offset: 4px; }
-.balance-panel { background: #162b49; color: #fff; border: 0; }
-.balance-panel [data-balance-label] { color: #b7c9e3; }
-.balance-panel [data-balance-value] { color: #fff; }
-.landing-grid { background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg,var(--border) 1px,transparent 1px); background-size: 52px 52px; }
-.money-number { font-variant-numeric: tabular-nums; letter-spacing: -.04em; }
-@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+* {
+  border-color: var(--border);
+}
+html {
+  background: var(--background);
+  scroll-behavior: smooth;
+}
+body {
+  min-height: 100vh;
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Segoe UI', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+button:not(:disabled),
+a {
+  cursor: pointer;
+}
+button,
+a,
+input,
+select,
+textarea {
+  transition:
+    color 150ms ease,
+    background-color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+::selection {
+  background: var(--secondary);
+  color: var(--foreground);
+}
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 4px;
+}
+.balance-panel {
+  background: #162b49;
+  color: #fff;
+  border: 0;
+}
+.balance-panel [data-balance-label] {
+  color: #b7c9e3;
+}
+.balance-panel [data-balance-value] {
+  color: #fff;
+}
+.landing-grid {
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 52px 52px;
+}
+.money-number {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.04em;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
 
 /* Semantic compatibility layer for feature pages. */
-main input, main select, main textarea { border-color: var(--input) !important; background: color-mix(in srgb, var(--card) 88%, var(--background)) !important; color: var(--foreground) !important; }
-main .bg-white, main .bg-slate-50 { background-color: var(--card) !important; }
-main .bg-slate-100 { background-color: var(--muted) !important; }
-main .border-slate-100, main .border-slate-200 { border-color: var(--border) !important; }
-main .text-slate-950, main .text-slate-900, main .text-slate-800 { color: var(--foreground) !important; }
-main .text-slate-700, main .text-slate-600, main .text-slate-500, main .text-slate-400 { color: var(--muted-foreground) !important; }
-main .bg-slate-950, main .bg-slate-900 { background: var(--primary) !important; }
-main .bg-slate-950.text-white, main .bg-slate-900.text-white { color: var(--primary-foreground) !important; }
-main .bg-blue-50 { background-color: var(--secondary) !important; }
-main .text-blue-700 { color: var(--secondary-foreground) !important; }
-main .bg-emerald-50 { background-color: var(--success-muted) !important; }
-main .text-emerald-700 { color: var(--success) !important; }
-main .bg-amber-50 { background-color: var(--warning-muted) !important; }
-main .text-amber-700 { color: var(--warning) !important; }
-main .bg-rose-50 { background-color: color-mix(in srgb, var(--destructive) 12%, var(--card)) !important; }
-main .text-rose-700, main .text-rose-800, main .text-red-600, main .text-red-700 { color: var(--destructive) !important; }
-main .focus\:border-blue-500:focus { border-color: var(--ring) !important; }
-main .focus\:ring-blue-100:focus { --tw-ring-color: var(--secondary) !important; }
-main [role='dialog'] { max-height: calc(100dvh - 2rem); overflow-y: auto; background: var(--card) !important; color: var(--card-foreground) !important; box-shadow: 0 24px 70px rgb(1 7 26 / .36) !important; }
-main [role='dialog'] form > div:last-child { position: sticky; bottom: -1px; margin-top: 1.5rem; border-top: 1px solid var(--border); background: var(--card); padding-top: 1rem; }
-main article { transition: background-color 150ms ease, transform 150ms ease; }
-@media (hover: hover) { main article:hover { background: color-mix(in srgb, var(--muted) 36%, transparent); } }
+main input,
+main select,
+main textarea {
+  border-color: var(--input) !important;
+  background: color-mix(in srgb, var(--card) 88%, var(--background)) !important;
+  color: var(--foreground) !important;
+}
+main .bg-white,
+main .bg-slate-50 {
+  background-color: var(--card) !important;
+}
+main .bg-slate-100 {
+  background-color: var(--muted) !important;
+}
+main .border-slate-100,
+main .border-slate-200 {
+  border-color: var(--border) !important;
+}
+main .text-slate-950,
+main .text-slate-900,
+main .text-slate-800 {
+  color: var(--foreground) !important;
+}
+main .text-slate-700,
+main .text-slate-600,
+main .text-slate-500,
+main .text-slate-400 {
+  color: var(--muted-foreground) !important;
+}
+main .bg-slate-950,
+main .bg-slate-900 {
+  background: var(--primary) !important;
+}
+main .bg-slate-950.text-white,
+main .bg-slate-900.text-white {
+  color: var(--primary-foreground) !important;
+}
+main .bg-blue-50 {
+  background-color: var(--secondary) !important;
+}
+main .text-blue-700 {
+  color: var(--secondary-foreground) !important;
+}
+main .bg-emerald-50 {
+  background-color: var(--success-muted) !important;
+}
+main .text-emerald-700 {
+  color: var(--success) !important;
+}
+main .bg-amber-50 {
+  background-color: var(--warning-muted) !important;
+}
+main .text-amber-700 {
+  color: var(--warning) !important;
+}
+main .bg-rose-50 {
+  background-color: color-mix(in srgb, var(--destructive) 12%, var(--card)) !important;
+}
+main .text-rose-700,
+main .text-rose-800,
+main .text-red-600,
+main .text-red-700 {
+  color: var(--destructive) !important;
+}
+main .focus\:border-blue-500:focus {
+  border-color: var(--ring) !important;
+}
+main .focus\:ring-blue-100:focus {
+  --tw-ring-color: var(--secondary) !important;
+}
+main [role='dialog'] {
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  background: var(--card) !important;
+  color: var(--card-foreground) !important;
+  box-shadow: 0 24px 70px rgb(1 7 26 / 0.36) !important;
+}
+main [role='dialog'] form > div:last-child {
+  position: sticky;
+  bottom: -1px;
+  margin-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  background: var(--card);
+  padding-top: 1rem;
+}
+main article {
+  transition:
+    background-color 150ms ease,
+    transform 150ms ease;
+}
+@media (hover: hover) {
+  main article:hover {
+    background: color-mix(in srgb, var(--muted) 36%, transparent);
+  }
+}

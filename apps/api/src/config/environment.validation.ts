@@ -5,7 +5,10 @@ const environmentSchema = z.object({
   CORS_ORIGIN: z.string().url(),
   DATABASE_URL: z.string().url(),
   JWT_ACCESS_SECRET: z.string().min(32),
-  JWT_ACCESS_TOKEN_EXPIRES_IN: z.string().regex(/^\d+[smhd]$/).default('15m'),
+  JWT_ACCESS_TOKEN_EXPIRES_IN: z
+    .string()
+    .regex(/^\d+[smhd]$/)
+    .default('15m'),
   REFRESH_TOKEN_HMAC_SECRET: z.string().min(32),
   SMTP_HOST: z.string().optional(),
   SMTP_PORT: z.coerce.number().int().min(1).max(65535).default(587),

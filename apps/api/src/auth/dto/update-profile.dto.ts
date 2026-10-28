@@ -1,7 +1,8 @@
 import { Transform } from 'class-transformer';
 import { IsEmail, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 
-const trim = ({ value }: { value: unknown }): unknown => typeof value === 'string' ? value.trim() : value;
+const trim = ({ value }: { value: unknown }): unknown =>
+  typeof value === 'string' ? value.trim() : value;
 
 export class UpdateProfileDto {
   @Transform(trim)
@@ -11,7 +12,9 @@ export class UpdateProfileDto {
   @MaxLength(100)
   name?: string;
 
-  @Transform(({ value }: { value: unknown }): unknown => typeof value === 'string' ? value.trim().toLowerCase() : value)
+  @Transform(({ value }: { value: unknown }): unknown =>
+    typeof value === 'string' ? value.trim().toLowerCase() : value,
+  )
   @IsOptional()
   @IsEmail()
   @MaxLength(320)

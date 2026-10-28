@@ -125,7 +125,9 @@ describe('Categories (e2e)', () => {
         expect.objectContaining({ id: firstUserCategoryId, name: 'Freelance', isSystem: false }),
       ]),
     );
-    expect(categories).not.toEqual(expect.arrayContaining([expect.objectContaining({ id: secondUserCategoryId })]));
+    expect(categories).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ id: secondUserCategoryId })]),
+    );
     expect(categories.every((category) => !('userId' in category))).toBe(true);
     expect(categories.map((category) => `${category.type}:${category.name}`)).toEqual([
       'INCOME:Freelance',
@@ -147,11 +149,20 @@ describe('Categories (e2e)', () => {
     ]);
 
     expect(income.status).toBe(200);
-    expect((income.body as CategoryResponse[]).every((category) => category.type === 'INCOME')).toBe(true);
-    expect((income.body as CategoryResponse[]).map((category) => category.name)).toEqual(['Freelance', 'Salary']);
+    expect(
+      (income.body as CategoryResponse[]).every((category) => category.type === 'INCOME'),
+    ).toBe(true);
+    expect((income.body as CategoryResponse[]).map((category) => category.name)).toEqual([
+      'Freelance',
+      'Salary',
+    ]);
     expect(expense.status).toBe(200);
-    expect((expense.body as CategoryResponse[]).every((category) => category.type === 'EXPENSE')).toBe(true);
-    expect((expense.body as CategoryResponse[]).map((category) => category.name)).toEqual(['Market']);
+    expect(
+      (expense.body as CategoryResponse[]).every((category) => category.type === 'EXPENSE'),
+    ).toBe(true);
+    expect((expense.body as CategoryResponse[]).map((category) => category.name)).toEqual([
+      'Market',
+    ]);
   });
 
   it('filters categories by case-insensitive name search', async () => {
@@ -161,7 +172,9 @@ describe('Categories (e2e)', () => {
       .set('Authorization', `Bearer ${firstUser.accessToken}`);
 
     expect(response.status).toBe(200);
-    expect(response.body).toEqual([expect.objectContaining({ id: firstUserCategoryId, name: 'Freelance' })]);
+    expect(response.body).toEqual([
+      expect.objectContaining({ id: firstUserCategoryId, name: 'Freelance' }),
+    ]);
   });
 
   it('rejects an invalid category type filter', async () => {
@@ -174,11 +187,13 @@ describe('Categories (e2e)', () => {
   });
 
   async function registerUser(prefix: string): Promise<AuthenticationResponse> {
-    const response = await request(application.getHttpServer()).post('/auth/register').send({
-      name: `${prefix} user`,
-      email: `${prefix}@categories.example.com`,
-      password: 'password123',
-    });
+    const response = await request(application.getHttpServer())
+      .post('/auth/register')
+      .send({
+        name: `${prefix} user`,
+        email: `${prefix}@categories.example.com`,
+        password: 'password123',
+      });
 
     expect(response.status).toBe(201);
     return response.body as AuthenticationResponse;

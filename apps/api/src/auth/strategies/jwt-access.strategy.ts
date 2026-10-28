@@ -25,7 +25,12 @@ export class JwtAccessStrategy extends PassportStrategy(Strategy, 'jwt-access') 
     }
 
     const session = await this.prisma.authSession.findFirst({
-      where: { id: payload.sid, userId: payload.sub, revokedAt: null, expiresAt: { gt: new Date() } },
+      where: {
+        id: payload.sid,
+        userId: payload.sub,
+        revokedAt: null,
+        expiresAt: { gt: new Date() },
+      },
       select: { id: true },
     });
     if (!session) throw new UnauthorizedException();

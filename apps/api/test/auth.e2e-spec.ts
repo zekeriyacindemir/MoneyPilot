@@ -200,7 +200,9 @@ describe('Authentication (e2e)', () => {
       .post('/auth/logout')
       .set('Cookie', refreshCookie);
     const noCookieLogout = await request(application.getHttpServer()).post('/auth/logout');
-    const revokedSession = await prisma.authSession.findUniqueOrThrow({ where: { id: session.id } });
+    const revokedSession = await prisma.authSession.findUniqueOrThrow({
+      where: { id: session.id },
+    });
 
     expect(firstLogout.status).toBe(204);
     expect(secondLogout.status).toBe(204);
@@ -304,24 +306,42 @@ describe('Authentication (e2e)', () => {
     const secondUserRecord = await prisma.user.findUniqueOrThrow({ where: { id: secondUserId } });
 
     expect(updated.status).toBe(200);
-    expect(updated.body).toMatchObject({ defaultCurrency: 'EUR', budgetAlertsEnabled: false, weeklySummaryEnabled: true });
-    expect(secondUserRecord).toMatchObject({ defaultCurrency: 'TRY', budgetAlertsEnabled: true, weeklySummaryEnabled: false });
+    expect(updated.body).toMatchObject({
+      defaultCurrency: 'EUR',
+      budgetAlertsEnabled: false,
+      weeklySummaryEnabled: true,
+    });
+    expect(secondUserRecord).toMatchObject({
+      defaultCurrency: 'TRY',
+      budgetAlertsEnabled: true,
+      weeklySummaryEnabled: false,
+    });
   });
 
   it('changes the password, retains the current session, and revokes other sessions', async () => {
     const registration = await register('Ada Lovelace', 'ada@example.com');
     const accessToken = (registration.body as AuthenticationResponse).accessToken;
-    const secondLogin = await request(application.getHttpServer()).post('/auth/login').send({ email: 'ada@example.com', password: 'password123' });
+    const secondLogin = await request(application.getHttpServer())
+      .post('/auth/login')
+      .send({ email: 'ada@example.com', password: 'password123' });
     const secondSessionToken = (secondLogin.body as AuthenticationResponse).accessToken;
 
     const changed = await request(application.getHttpServer())
       .patch('/auth/password')
       .set('Authorization', `Bearer ${accessToken}`)
       .send({ currentPassword: 'password123', newPassword: 'new-password123' });
-    const currentSession = await request(application.getHttpServer()).get('/auth/me').set('Authorization', `Bearer ${accessToken}`);
-    const revokedSession = await request(application.getHttpServer()).get('/auth/me').set('Authorization', `Bearer ${secondSessionToken}`);
-    const oldLogin = await request(application.getHttpServer()).post('/auth/login').send({ email: 'ada@example.com', password: 'password123' });
-    const newLogin = await request(application.getHttpServer()).post('/auth/login').send({ email: 'ada@example.com', password: 'new-password123' });
+    const currentSession = await request(application.getHttpServer())
+      .get('/auth/me')
+      .set('Authorization', `Bearer ${accessToken}`);
+    const revokedSession = await request(application.getHttpServer())
+      .get('/auth/me')
+      .set('Authorization', `Bearer ${secondSessionToken}`);
+    const oldLogin = await request(application.getHttpServer())
+      .post('/auth/login')
+      .send({ email: 'ada@example.com', password: 'password123' });
+    const newLogin = await request(application.getHttpServer())
+      .post('/auth/login')
+      .send({ email: 'ada@example.com', password: 'new-password123' });
 
     expect(changed.status).toBe(204);
     expect(currentSession.status).toBe(200);
@@ -333,18 +353,30 @@ describe('Authentication (e2e)', () => {
   it('lists and revokes only the authenticated user sessions', async () => {
     const firstUser = await register('Ada Lovelace', 'ada@example.com');
     const firstToken = (firstUser.body as AuthenticationResponse).accessToken;
-    const secondLogin = await request(application.getHttpServer()).post('/auth/login').send({ email: 'ada@example.com', password: 'password123' });
+    const secondLogin = await request(application.getHttpServer())
+      .post('/auth/login')
+      .send({ email: 'ada@example.com', password: 'password123' });
     const secondSession = await prisma.authSession.findFirstOrThrow({
       where: { userId: (firstUser.body as AuthenticationResponse).user.id },
       orderBy: { createdAt: 'desc' },
     });
     const otherUser = await register('Grace Hopper', 'grace@example.com');
-    const otherSession = await prisma.authSession.findFirstOrThrow({ where: { userId: (otherUser.body as AuthenticationResponse).user.id } });
+    const otherSession = await prisma.authSession.findFirstOrThrow({
+      where: { userId: (otherUser.body as AuthenticationResponse).user.id },
+    });
 
-    const listed = await request(application.getHttpServer()).get('/auth/sessions').set('Authorization', `Bearer ${firstToken}`);
-    const rejectedRevoke = await request(application.getHttpServer()).delete(`/auth/sessions/${otherSession.id}`).set('Authorization', `Bearer ${firstToken}`);
-    const revoke = await request(application.getHttpServer()).delete(`/auth/sessions/${secondSession.id}`).set('Authorization', `Bearer ${firstToken}`);
-    const secondSessionAccess = await request(application.getHttpServer()).get('/auth/me').set('Authorization', `Bearer ${(secondLogin.body as AuthenticationResponse).accessToken}`);
+    const listed = await request(application.getHttpServer())
+      .get('/auth/sessions')
+      .set('Authorization', `Bearer ${firstToken}`);
+    const rejectedRevoke = await request(application.getHttpServer())
+      .delete(`/auth/sessions/${otherSession.id}`)
+      .set('Authorization', `Bearer ${firstToken}`);
+    const revoke = await request(application.getHttpServer())
+      .delete(`/auth/sessions/${secondSession.id}`)
+      .set('Authorization', `Bearer ${firstToken}`);
+    const secondSessionAccess = await request(application.getHttpServer())
+      .get('/auth/me')
+      .set('Authorization', `Bearer ${(secondLogin.body as AuthenticationResponse).accessToken}`);
 
     expect(listed.status).toBe(200);
     expect(listed.body).toHaveLength(2);
@@ -360,11 +392,23 @@ describe('Authentication (e2e)', () => {
     const firstUserId = (firstUser.body as AuthenticationResponse).user.id;
     const secondUserId = (secondUser.body as AuthenticationResponse).user.id;
 
-    const exported = await request(application.getHttpServer()).get('/auth/export?format=json').set('Authorization', `Bearer ${firstToken}`);
-    const csvExport = await request(application.getHttpServer()).get('/auth/export?format=csv').set('Authorization', `Bearer ${firstToken}`);
-    const invalidExport = await request(application.getHttpServer()).get('/auth/export?format=xml').set('Authorization', `Bearer ${firstToken}`);
-    const rejectedDelete = await request(application.getHttpServer()).delete('/auth/account').set('Authorization', `Bearer ${firstToken}`).send({ currentPassword: 'wrongpass' });
-    const deleted = await request(application.getHttpServer()).delete('/auth/account').set('Authorization', `Bearer ${firstToken}`).send({ currentPassword: 'password123' });
+    const exported = await request(application.getHttpServer())
+      .get('/auth/export?format=json')
+      .set('Authorization', `Bearer ${firstToken}`);
+    const csvExport = await request(application.getHttpServer())
+      .get('/auth/export?format=csv')
+      .set('Authorization', `Bearer ${firstToken}`);
+    const invalidExport = await request(application.getHttpServer())
+      .get('/auth/export?format=xml')
+      .set('Authorization', `Bearer ${firstToken}`);
+    const rejectedDelete = await request(application.getHttpServer())
+      .delete('/auth/account')
+      .set('Authorization', `Bearer ${firstToken}`)
+      .send({ currentPassword: 'wrongpass' });
+    const deleted = await request(application.getHttpServer())
+      .delete('/auth/account')
+      .set('Authorization', `Bearer ${firstToken}`)
+      .send({ currentPassword: 'password123' });
 
     expect(exported.status).toBe(200);
     expect(exported.body).toMatchObject({ id: firstUserId, email: 'ada@example.com' });

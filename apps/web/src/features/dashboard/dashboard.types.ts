@@ -60,10 +60,7 @@ export interface FinancialHealth {
 }
 
 export type CoachingHref =
-  | '/dashboard/transactions'
-  | '/dashboard/budgets'
-  | '/dashboard/savings'
-  | '/dashboard/reports';
+  '/dashboard/transactions' | '/dashboard/budgets' | '/dashboard/savings' | '/dashboard/reports';
 export interface CoachingItem {
   title: string;
   body: string;

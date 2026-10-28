@@ -1,2 +1,4 @@
 import { PasswordRecovery } from '@/features/auth/password-recovery';
-export default function Page() { return <PasswordRecovery reset />; }
+export default function Page() {
+  return <PasswordRecovery reset />;
+}

@@ -28,7 +28,13 @@ import { JwtAccessStrategy } from './strategies/jwt-access.strategy';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtAccessStrategy, AuthThrottleGuard, PasswordMailer, PasswordRecoveryService],
+  providers: [
+    AuthService,
+    JwtAccessStrategy,
+    AuthThrottleGuard,
+    PasswordMailer,
+    PasswordRecoveryService,
+  ],
   exports: [AuthService, JwtModule, PassportModule],
 })
 export class AuthModule {}

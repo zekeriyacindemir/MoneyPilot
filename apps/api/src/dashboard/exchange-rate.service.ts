@@ -51,14 +51,18 @@ export class ExchangeRateService {
       const rates = new Map<Currency, number>([[base, 1]]);
       for (const currency of symbols) {
         const rate = body.rates?.[currency];
-        if (typeof rate === 'number' && Number.isFinite(rate) && rate > 0) rates.set(currency, rate);
+        if (typeof rate === 'number' && Number.isFinite(rate) && rate > 0)
+          rates.set(currency, rate);
       }
-      if (rates.size !== Object.values(Currency).length) throw new Error('Rate service returned incomplete data.');
+      if (rates.size !== Object.values(Currency).length)
+        throw new Error('Rate service returned incomplete data.');
 
       this.cache.set(base, { rates, expiresAt: Date.now() + 6 * 60 * 60 * 1_000 });
       return rates;
     } catch (error) {
-      this.logger.warn(`Could not load FX rates with ${base} as base: ${error instanceof Error ? error.message : 'unknown error'}`);
+      this.logger.warn(
+        `Could not load FX rates with ${base} as base: ${error instanceof Error ? error.message : 'unknown error'}`,
+      );
       throw new ServiceUnavailableException(
         'Güncel döviz kuru alınamadı. Lütfen biraz sonra tekrar deneyin.',
       );

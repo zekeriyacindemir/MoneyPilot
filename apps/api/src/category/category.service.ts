@@ -20,7 +20,9 @@ export class CategoryService {
     const where: Prisma.CategoryWhereInput = {
       OR: [{ isSystem: true }, { userId }],
       ...(query.type ? { type: query.type } : {}),
-      ...(query.search ? { name: { contains: query.search, mode: Prisma.QueryMode.insensitive } } : {}),
+      ...(query.search
+        ? { name: { contains: query.search, mode: Prisma.QueryMode.insensitive } }
+        : {}),
     };
 
     return this.prisma.category.findMany({

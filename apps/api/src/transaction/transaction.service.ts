@@ -1,4 +1,10 @@
-import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma, TransactionType } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import type { CreateTransactionDto } from './dto/create-transaction.dto';
@@ -133,7 +139,11 @@ export class TransactionService {
     return this.toResponse(transaction);
   }
 
-  async update(userId: string, id: string, updateDto: UpdateTransactionDto): Promise<TransactionResponse> {
+  async update(
+    userId: string,
+    id: string,
+    updateDto: UpdateTransactionDto,
+  ): Promise<TransactionResponse> {
     try {
       const transaction = await this.prisma.$transaction(async (prisma) => {
         const existing = await prisma.transaction.findFirst({

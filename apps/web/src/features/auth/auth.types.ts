@@ -10,9 +10,24 @@ export interface User {
 }
 
 export type Currency = 'TRY' | 'USD' | 'EUR' | 'GBP';
-export interface Session { id: string; createdAt: string; lastUsedAt: string | null; expiresAt: string; current: boolean; }
-export interface ProfileRequest { name?: string; email?: string; currentPassword?: string; }
-export interface PreferencesRequest { defaultCurrency?: Currency; budgetAlertsEnabled?: boolean; savingsGoalAlertsEnabled?: boolean; weeklySummaryEnabled?: boolean; }
+export interface Session {
+  id: string;
+  createdAt: string;
+  lastUsedAt: string | null;
+  expiresAt: string;
+  current: boolean;
+}
+export interface ProfileRequest {
+  name?: string;
+  email?: string;
+  currentPassword?: string;
+}
+export interface PreferencesRequest {
+  defaultCurrency?: Currency;
+  budgetAlertsEnabled?: boolean;
+  savingsGoalAlertsEnabled?: boolean;
+  weeklySummaryEnabled?: boolean;
+}
 
 export interface AuthResponse {
   accessToken: string;

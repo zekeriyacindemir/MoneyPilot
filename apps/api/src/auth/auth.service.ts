@@ -287,7 +287,8 @@ export class AuthService {
     try {
       await this.prisma.user.update({ where: { id: userId }, data });
     } catch (error) {
-      if (this.isDuplicateEmailError(error)) throw new ConflictException('An account with this email already exists.');
+      if (this.isDuplicateEmailError(error))
+        throw new ConflictException('An account with this email already exists.');
       throw error;
     }
     return this.getCurrentUser(userId);
@@ -298,8 +299,15 @@ export class AuthService {
     return this.getCurrentUser(userId);
   }
 
-  async changePassword(userId: string, currentSessionId: string, dto: UpdatePasswordDto): Promise<void> {
-    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { passwordHash: true } });
+  async changePassword(
+    userId: string,
+    currentSessionId: string,
+    dto: UpdatePasswordDto,
+  ): Promise<void> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { passwordHash: true },
+    });
     if (!user || !(await argon2.verify(user.passwordHash, dto.currentPassword))) {
       throw new UnauthorizedException('Current password is incorrect.');
     }
@@ -318,26 +326,51 @@ export class AuthService {
   }
 
   async getSessions(userId: string, currentSessionId: string) {
-    return this.prisma.authSession.findMany({
-      where: { userId, revokedAt: null, expiresAt: { gt: new Date() } },
-      select: { id: true, createdAt: true, lastUsedAt: true, expiresAt: true }, orderBy: { createdAt: 'desc' },
-    }).then((sessions) => sessions.map((session) => ({ ...session, current: session.id === currentSessionId })));
+    return this.prisma.authSession
+      .findMany({
+        where: { userId, revokedAt: null, expiresAt: { gt: new Date() } },
+        select: { id: true, createdAt: true, lastUsedAt: true, expiresAt: true },
+        orderBy: { createdAt: 'desc' },
+      })
+      .then((sessions) =>
+        sessions.map((session) => ({ ...session, current: session.id === currentSessionId })),
+      );
   }
 
   async revokeSession(userId: string, sessionId: string): Promise<boolean> {
-    const result = await this.prisma.authSession.updateMany({ where: { id: sessionId, userId, revokedAt: null }, data: { revokedAt: new Date() } });
+    const result = await this.prisma.authSession.updateMany({
+      where: { id: sessionId, userId, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
     return result.count === 1;
   }
 
   async exportData(userId: string) {
-    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { id: true, email: true, displayName: true, defaultCurrency: true, createdAt: true, categories: true, transactions: true, budgets: true, savingsGoals: true } });
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        displayName: true,
+        defaultCurrency: true,
+        createdAt: true,
+        categories: true,
+        transactions: true,
+        budgets: true,
+        savingsGoals: true,
+      },
+    });
     if (!user) throw new UnauthorizedException();
     return user;
   }
 
   async deleteAccount(userId: string, dto: DeleteAccountDto): Promise<void> {
-    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { passwordHash: true } });
-    if (!user || !(await argon2.verify(user.passwordHash, dto.currentPassword))) throw new UnauthorizedException('Current password is incorrect.');
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { passwordHash: true },
+    });
+    if (!user || !(await argon2.verify(user.passwordHash, dto.currentPassword)))
+      throw new UnauthorizedException('Current password is incorrect.');
     await this.prisma.$transaction(async (tx) => {
       await tx.authSession.deleteMany({ where: { userId } });
       await tx.transaction.deleteMany({ where: { userId } });
@@ -382,11 +415,11 @@ export class AuthService {
         id: user.id,
         name: user.displayName ?? '',
         email: user.email,
-      createdAt: user.createdAt,
-      defaultCurrency: user.defaultCurrency,
-      budgetAlertsEnabled: user.budgetAlertsEnabled,
-      savingsGoalAlertsEnabled: user.savingsGoalAlertsEnabled,
-      weeklySummaryEnabled: user.weeklySummaryEnabled,
+        createdAt: user.createdAt,
+        defaultCurrency: user.defaultCurrency,
+        budgetAlertsEnabled: user.budgetAlertsEnabled,
+        savingsGoalAlertsEnabled: user.savingsGoalAlertsEnabled,
+        weeklySummaryEnabled: user.weeklySummaryEnabled,
       },
     };
   }

@@ -1,9 +1,5 @@
 {
-  "moduleFileExtensions": [
-    "js",
-    "json",
-    "ts"
-  ],
+  "moduleFileExtensions": ["js", "json", "ts"],
   "rootDir": "..",
   "testRegex": "test/.*\\.e2e-spec\\.ts$",
   "transform": {
@@ -15,7 +11,5 @@
     ]
   },
   "testEnvironment": "node",
-  "setupFiles": [
-    "<rootDir>/test/database-safety.ts"
-  ]
+  "setupFiles": ["<rootDir>/test/database-safety.ts"]
 }

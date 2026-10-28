@@ -20,8 +20,12 @@ const systemCategories = [
 
 async function main() {
   for (const category of systemCategories) {
-    const existing = await prisma.category.findFirst({ where: { name: category.name, type: category.type, isSystem: true, userId: null }, select: { id: true } });
-    if (!existing) await prisma.category.create({ data: { ...category, isSystem: true, userId: null } });
+    const existing = await prisma.category.findFirst({
+      where: { name: category.name, type: category.type, isSystem: true, userId: null },
+      select: { id: true },
+    });
+    if (!existing)
+      await prisma.category.create({ data: { ...category, isSystem: true, userId: null } });
   }
 }
 

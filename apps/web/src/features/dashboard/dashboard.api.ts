@@ -1,6 +1,11 @@
 import { apiClient } from '@/lib/api/client';
 import type { Currency } from '@/features/transactions/transactions.types';
-import type { DailyCoaching, DashboardPeriod, DashboardSummary, FinancialHealth } from './dashboard.types';
+import type {
+  DailyCoaching,
+  DashboardPeriod,
+  DashboardSummary,
+  FinancialHealth,
+} from './dashboard.types';
 
 export async function getDashboardSummary({
   currency,

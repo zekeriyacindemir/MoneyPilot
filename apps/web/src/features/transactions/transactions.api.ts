@@ -7,7 +7,9 @@ import type {
   UpdateTransactionRequest,
 } from './transactions.types';
 
-export async function listTransactions(params: TransactionListParams): Promise<TransactionListResponse> {
+export async function listTransactions(
+  params: TransactionListParams,
+): Promise<TransactionListResponse> {
   const response = await apiClient.get<TransactionListResponse>('/transactions', { params });
 
   return response.data;
@@ -25,7 +27,13 @@ export async function createTransaction(request: CreateTransactionRequest): Prom
   return response.data;
 }
 
-export async function updateTransaction({ id, request }: { id: string; request: UpdateTransactionRequest }): Promise<Transaction> {
+export async function updateTransaction({
+  id,
+  request,
+}: {
+  id: string;
+  request: UpdateTransactionRequest;
+}): Promise<Transaction> {
   const response = await apiClient.patch<Transaction>(`/transactions/${id}`, request);
 
   return response.data;

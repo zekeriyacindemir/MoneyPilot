@@ -31,14 +31,27 @@ export class CategoryController {
   @Get()
   @ApiOperation({
     summary: 'List available categories',
-    description: 'Returns system categories and private categories owned by the authenticated user.',
+    description:
+      'Returns system categories and private categories owned by the authenticated user.',
   })
-  @ApiOkResponse({ description: 'Available categories ordered by type and name.', schema: { example: [categoryExample] } })
+  @ApiOkResponse({
+    description: 'Available categories ordered by type and name.',
+    schema: { example: [categoryExample] },
+  })
   @ApiBadRequestResponse({
     description: 'The type filter is not a valid category type.',
-    schema: { example: { statusCode: 400, message: ['type must be one of the following values: INCOME, EXPENSE'], error: 'Bad Request' } },
+    schema: {
+      example: {
+        statusCode: 400,
+        message: ['type must be one of the following values: INCOME, EXPENSE'],
+        error: 'Bad Request',
+      },
+    },
   })
-  @ApiUnauthorizedResponse({ description: 'Access token is missing or invalid.', schema: { example: { statusCode: 401, message: 'Unauthorized' } } })
+  @ApiUnauthorizedResponse({
+    description: 'Access token is missing or invalid.',
+    schema: { example: { statusCode: 401, message: 'Unauthorized' } },
+  })
   findAll(
     @CurrentUser() user: { sub: string },
     @Query() query: ListCategoriesDto,

@@ -153,9 +153,16 @@ describe('Transactions (e2e)', () => {
     const id = (transaction.body as TransactionResponse).id;
 
     const [read, update, deletion] = await Promise.all([
-      request(application.getHttpServer()).get(`/transactions/${id}`).set('Authorization', `Bearer ${otherUser.accessToken}`),
-      request(application.getHttpServer()).patch(`/transactions/${id}`).set('Authorization', `Bearer ${otherUser.accessToken}`).send({ note: 'Attempted update' }),
-      request(application.getHttpServer()).delete(`/transactions/${id}`).set('Authorization', `Bearer ${otherUser.accessToken}`),
+      request(application.getHttpServer())
+        .get(`/transactions/${id}`)
+        .set('Authorization', `Bearer ${otherUser.accessToken}`),
+      request(application.getHttpServer())
+        .patch(`/transactions/${id}`)
+        .set('Authorization', `Bearer ${otherUser.accessToken}`)
+        .send({ note: 'Attempted update' }),
+      request(application.getHttpServer())
+        .delete(`/transactions/${id}`)
+        .set('Authorization', `Bearer ${otherUser.accessToken}`),
     ]);
 
     expect(read.status).toBe(404);
@@ -193,9 +200,18 @@ describe('Transactions (e2e)', () => {
 
   it('paginates transactions using the requested page and limit', async () => {
     const user = await registerUser();
-    await createTransaction(user.accessToken, { amount: '10.00', occurredAt: '2026-07-01T10:00:00.000Z' });
-    await createTransaction(user.accessToken, { amount: '20.00', occurredAt: '2026-07-02T10:00:00.000Z' });
-    await createTransaction(user.accessToken, { amount: '30.00', occurredAt: '2026-07-03T10:00:00.000Z' });
+    await createTransaction(user.accessToken, {
+      amount: '10.00',
+      occurredAt: '2026-07-01T10:00:00.000Z',
+    });
+    await createTransaction(user.accessToken, {
+      amount: '20.00',
+      occurredAt: '2026-07-02T10:00:00.000Z',
+    });
+    await createTransaction(user.accessToken, {
+      amount: '30.00',
+      occurredAt: '2026-07-03T10:00:00.000Z',
+    });
 
     const response = await request(application.getHttpServer())
       .get('/transactions')
@@ -253,9 +269,18 @@ describe('Transactions (e2e)', () => {
 
   it('sorts transactions by the requested supported field and direction', async () => {
     const user = await registerUser();
-    await createTransaction(user.accessToken, { amount: '20.00', occurredAt: '2026-07-01T10:00:00.000Z' });
-    await createTransaction(user.accessToken, { amount: '100.00', occurredAt: '2026-07-02T10:00:00.000Z' });
-    await createTransaction(user.accessToken, { amount: '50.00', occurredAt: '2026-07-03T10:00:00.000Z' });
+    await createTransaction(user.accessToken, {
+      amount: '20.00',
+      occurredAt: '2026-07-01T10:00:00.000Z',
+    });
+    await createTransaction(user.accessToken, {
+      amount: '100.00',
+      occurredAt: '2026-07-02T10:00:00.000Z',
+    });
+    await createTransaction(user.accessToken, {
+      amount: '50.00',
+      occurredAt: '2026-07-03T10:00:00.000Z',
+    });
 
     const response = await request(application.getHttpServer())
       .get('/transactions')
@@ -263,16 +288,22 @@ describe('Transactions (e2e)', () => {
       .set('Authorization', `Bearer ${user.accessToken}`);
 
     expect(response.status).toBe(200);
-    expect(response.body.items.map((item: TransactionResponse) => item.amount)).toEqual(['20', '50', '100']);
+    expect(response.body.items.map((item: TransactionResponse) => item.amount)).toEqual([
+      '20',
+      '50',
+      '100',
+    ]);
   });
 
   async function registerUser(): Promise<AuthenticationResponse> {
     emailSequence += 1;
-    const response = await request(application.getHttpServer()).post('/auth/register').send({
-      name: `Test User ${emailSequence}`,
-      email: `transaction-user-${emailSequence}@example.com`,
-      password: 'password123',
-    });
+    const response = await request(application.getHttpServer())
+      .post('/auth/register')
+      .send({
+        name: `Test User ${emailSequence}`,
+        email: `transaction-user-${emailSequence}@example.com`,
+        password: 'password123',
+      });
 
     expect(response.status).toBe(201);
     return response.body as AuthenticationResponse;

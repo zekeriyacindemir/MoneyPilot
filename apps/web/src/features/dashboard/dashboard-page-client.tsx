@@ -36,7 +36,11 @@ const periodLabels: Record<DashboardPeriod, string> = {
 const selectClassName =
   'h-10 rounded-xl border bg-[var(--card)] px-3 text-sm font-medium text-[var(--foreground)] outline-none focus:ring-4 focus:ring-[var(--secondary)]';
 function formatAmount(amount: string, currency: Currency): string {
-  return new Intl.NumberFormat('tr-TR', { style: 'currency', currency, maximumFractionDigits: 2 }).format(Number(amount));
+  return new Intl.NumberFormat('tr-TR', {
+    style: 'currency',
+    currency,
+    maximumFractionDigits: 2,
+  }).format(Number(amount));
 }
 function getErrorMessage(error: unknown): string {
   if (isAxiosError<{ message?: string | string[] }>(error)) {
@@ -111,7 +115,22 @@ function DashboardContent({
   const coachingQuery = useDailyCoachingQuery(summary.currency);
   return (
     <>
-      {summary.recentTransactions.length === 0 ? <DashboardCard className="border-[var(--primary)]/20 bg-[var(--secondary)] p-6"><p className="text-xs font-semibold tracking-widest text-[var(--primary)]">İLK ADIMIN</p><h2 className="mt-2 text-xl font-semibold">Finansal yolculuğuna hoş geldin.</h2><p className="mt-2 max-w-xl text-sm leading-6 text-[var(--muted-foreground)]">Önce ilk gelirini veya harcamanı ekle. Ardından bir bütçe ve birikim hedefi oluşturduğunda sana özel finansal görünümün şekillenecek.</p><Link href="/dashboard/transactions" className="mt-4 inline-flex rounded-xl bg-[var(--primary)] px-4 py-3 text-sm font-semibold text-[var(--primary-foreground)]">İlk işlemimi ekle →</Link></DashboardCard> : null}
+      {summary.recentTransactions.length === 0 ? (
+        <DashboardCard className="border-[var(--primary)]/20 bg-[var(--secondary)] p-6">
+          <p className="text-xs font-semibold tracking-widest text-[var(--primary)]">İLK ADIMIN</p>
+          <h2 className="mt-2 text-xl font-semibold">Finansal yolculuğuna hoş geldin.</h2>
+          <p className="mt-2 max-w-xl text-sm leading-6 text-[var(--muted-foreground)]">
+            Önce ilk gelirini veya harcamanı ekle. Ardından bir bütçe ve birikim hedefi
+            oluşturduğunda sana özel finansal görünümün şekillenecek.
+          </p>
+          <Link
+            href="/dashboard/transactions"
+            className="mt-4 inline-flex rounded-xl bg-[var(--primary)] px-4 py-3 text-sm font-semibold text-[var(--primary-foreground)]"
+          >
+            İlk işlemimi ekle →
+          </Link>
+        </DashboardCard>
+      ) : null}
       <CurrentPositionCard summary={summary} period={period} />
       {healthQuery.isLoading ? <SkeletonCard /> : null}
       {healthQuery.isError ? (
@@ -231,25 +250,36 @@ function CurrentPositionCard({
     <DashboardCard className="balance-panel overflow-hidden p-6 sm:p-8">
       <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p data-balance-label className="text-sm font-medium">Toplam bakiye</p>
+          <p data-balance-label className="text-sm font-medium">
+            Toplam bakiye
+          </p>
           <p data-balance-value className="money-number mt-3 text-4xl font-semibold sm:text-5xl">
             {formatAmount(summary.totalBalance, summary.currency)}
           </p>
-          <p data-balance-label className="mt-3 text-xs">Kayıtlı işlemlerinizin güncel kurla net toplamı</p>
+          <p data-balance-label className="mt-3 text-xs">
+            Kayıtlı işlemlerinizin güncel kurla net toplamı
+          </p>
         </div>
         <div className="rounded-xl bg-white/10 p-4 sm:min-w-64">
           <p className="text-xs font-semibold uppercase tracking-wide text-blue-100">
             {periodLabels[period]} nakit akışı
           </p>
-          <p className={`mt-1 text-xl font-semibold tabular-nums ${cashFlow >= 0 ? 'text-emerald-200' : 'text-rose-200'}`}>
-            {cashFlow >= 0 ? '+' : ''}{formatAmount(cashFlow.toString(), summary.currency)}
+          <p
+            className={`mt-1 text-xl font-semibold tabular-nums ${cashFlow >= 0 ? 'text-emerald-200' : 'text-rose-200'}`}
+          >
+            {cashFlow >= 0 ? '+' : ''}
+            {formatAmount(cashFlow.toString(), summary.currency)}
           </p>
           <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-            {formatAmount(summary.periodIncome, summary.currency)} gelir · {formatAmount(summary.periodExpense, summary.currency)} gider
+            {formatAmount(summary.periodIncome, summary.currency)} gelir ·{' '}
+            {formatAmount(summary.periodExpense, summary.currency)} gider
           </p>
         </div>
       </div>
-      <Link href="/dashboard/reports" className="mt-6 inline-block text-xs font-semibold text-blue-100 hover:underline">
+      <Link
+        href="/dashboard/reports"
+        className="mt-6 inline-block text-xs font-semibold text-blue-100 hover:underline"
+      >
         Dönemsel analizi raporlarda incele →
       </Link>
     </DashboardCard>
@@ -261,10 +291,17 @@ function DailyCoachingCard({ coaching }: { coaching: DailyCoaching }) {
   const { personalInsight, generalTip } = coaching;
   return (
     <DashboardCard className="p-5 sm:p-6">
-      <SectionHeader title="Günlük koçluk" description={`${coaching.currency} · Bugünün finans notu`} />
+      <SectionHeader
+        title="Günlük koçluk"
+        description={`${coaching.currency} · Bugünün finans notu`}
+      />
       <div className="mt-5 rounded-xl bg-[var(--muted)]/55 p-4">
-        <p className="text-sm font-semibold text-[var(--card-foreground)]">{personalInsight.title}</p>
-        <p className="mt-1 text-sm leading-6 text-[var(--muted-foreground)]">{personalInsight.body}</p>
+        <p className="text-sm font-semibold text-[var(--card-foreground)]">
+          {personalInsight.title}
+        </p>
+        <p className="mt-1 text-sm leading-6 text-[var(--muted-foreground)]">
+          {personalInsight.body}
+        </p>
         <Link
           href={personalInsight.actionHref}
           className="mt-3 inline-block text-sm font-semibold text-[var(--primary)] hover:underline"
@@ -284,8 +321,12 @@ function DailyCoachingCard({ coaching }: { coaching: DailyCoaching }) {
         </button>
         {isGeneralTipOpen ? (
           <div className="mt-3 rounded-xl border p-4">
-            <p className="text-sm font-semibold text-[var(--card-foreground)]">{generalTip.title}</p>
-            <p className="mt-1 text-sm leading-6 text-[var(--muted-foreground)]">{generalTip.body}</p>
+            <p className="text-sm font-semibold text-[var(--card-foreground)]">
+              {generalTip.title}
+            </p>
+            <p className="mt-1 text-sm leading-6 text-[var(--muted-foreground)]">
+              {generalTip.body}
+            </p>
             <Link
               href={generalTip.actionHref}
               className="mt-3 inline-block text-sm font-semibold text-[var(--primary)] hover:underline"
@@ -333,7 +374,10 @@ function FinancialHealthCard({ health }: { health: FinancialHealth }) {
         title="Finansal sağlık skoru"
         description={`${health.currency} · Bu ayki finansal alışkanlıklarınız`}
       />
-      <p className="mt-3 text-xs leading-5 text-[var(--muted-foreground)]">Skor; tasarruf oranı %40, bütçe uyumu %35 ve hedef ilerlemesi %25 ağırlıkla hesaplanır. Kayıtlarına dayalı bir alışkanlık göstergesidir.</p>
+      <p className="mt-3 text-xs leading-5 text-[var(--muted-foreground)]">
+        Skor; tasarruf oranı %40, bütçe uyumu %35 ve hedef ilerlemesi %25 ağırlıkla hesaplanır.
+        Kayıtlarına dayalı bir alışkanlık göstergesidir.
+      </p>
       <div className="mt-5 grid gap-6 lg:grid-cols-[auto_1fr]">
         <div className="flex size-28 shrink-0 flex-col items-center justify-center rounded-full border-8 border-[var(--secondary)] bg-[var(--muted)]">
           <strong className="text-3xl tracking-tight text-[var(--card-foreground)]">

@@ -14,14 +14,44 @@ export function AuthShell({
   return (
     <main className="grid min-h-screen lg:grid-cols-2">
       <aside className="relative hidden flex-col justify-between bg-[#162b49] p-12 text-white lg:flex xl:p-20">
-        <Link href="/" className="w-fit rounded-xl bg-white p-2" aria-label="MoneyPilot ana sayfa"><BrandLogo className="h-10 w-40" priority /></Link>
-        <div className="my-20 max-w-md"><p className="text-xs font-semibold tracking-[.2em] text-blue-200">YARININ İÇİN BUGÜNDEN</p><h2 className="mt-6 text-5xl font-semibold leading-tight tracking-tight">Hedeflerine giden yol,<br />net bir bakışla başlar.</h2><p className="mt-6 text-base leading-8 text-blue-100/70">Harcamalarını anla. Bütçeni oluştur. Sana ait birikim yolculuğunu adım adım takip et.</p><div className="mt-10 flex gap-3">{['Takip et', 'Planla', 'Biriktir'].map((label,index)=><span key={label} className="rounded-full border border-white/20 px-4 py-2 text-xs text-blue-100">0{index+1} · {label}</span>)}</div></div>
+        <Link href="/" className="w-fit rounded-xl bg-white p-2" aria-label="MoneyPilot ana sayfa">
+          <BrandLogo className="h-10 w-40" priority />
+        </Link>
+        <div className="my-20 max-w-md">
+          <p className="text-xs font-semibold tracking-[.2em] text-blue-200">
+            YARININ İÇİN BUGÜNDEN
+          </p>
+          <h2 className="mt-6 text-5xl font-semibold leading-tight tracking-tight">
+            Hedeflerine giden yol,
+            <br />
+            net bir bakışla başlar.
+          </h2>
+          <p className="mt-6 text-base leading-8 text-blue-100/70">
+            Harcamalarını anla. Bütçeni oluştur. Sana ait birikim yolculuğunu adım adım takip et.
+          </p>
+          <div className="mt-10 flex gap-3">
+            {['Takip et', 'Planla', 'Biriktir'].map((label, index) => (
+              <span
+                key={label}
+                className="rounded-full border border-white/20 px-4 py-2 text-xs text-blue-100"
+              >
+                0{index + 1} · {label}
+              </span>
+            ))}
+          </div>
+        </div>
         <p className="text-xs text-blue-100/60">MoneyPilot · Kontrol sende.</p>
       </aside>
-      <div className="flex items-center justify-center px-5 py-12 sm:px-10"><section className="w-full max-w-md">
-        <Link href="/" className="mb-10 inline-block lg:hidden" aria-label="MoneyPilot ana sayfa"><BrandLogo className="h-12 w-44" priority /></Link>
-        <h1 className="text-3xl font-semibold tracking-tight">{title}</h1><p className="mt-3 text-sm leading-6 text-[var(--muted-foreground)]">{description}</p><div className="mt-9">{children}</div>
-      </section></div>
+      <div className="flex items-center justify-center px-5 py-12 sm:px-10">
+        <section className="w-full max-w-md">
+          <Link href="/" className="mb-10 inline-block lg:hidden" aria-label="MoneyPilot ana sayfa">
+            <BrandLogo className="h-12 w-44" priority />
+          </Link>
+          <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
+          <p className="mt-3 text-sm leading-6 text-[var(--muted-foreground)]">{description}</p>
+          <div className="mt-9">{children}</div>
+        </section>
+      </div>
     </main>
   );
 }

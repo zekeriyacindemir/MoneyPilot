@@ -117,17 +117,16 @@ export class DashboardService {
       ...userWhere,
       occurredAt: { gte: range.start, lt: range.end },
     };
-    const [
-      allTimeTotals,
-      periodTotals,
-      recentTransactions,
-      trendRows,
-    ] = await Promise.all([
+    const [allTimeTotals, periodTotals, recentTransactions, trendRows] = await Promise.all([
       this.prisma.transaction.groupBy({
-        by: ['currency', 'type'], where: userWhere, _sum: { amount: true },
+        by: ['currency', 'type'],
+        where: userWhere,
+        _sum: { amount: true },
       }),
       this.prisma.transaction.groupBy({
-        by: ['currency', 'type'], where: periodWhere, _sum: { amount: true },
+        by: ['currency', 'type'],
+        where: periodWhere,
+        _sum: { amount: true },
       }),
       this.prisma.transaction.findMany({
         where: userWhere,
@@ -155,7 +154,11 @@ export class DashboardService {
     const convertedTransactions = await Promise.all(
       recentTransactions.map(async (transaction) => ({
         ...transaction,
-        amount: await this.exchangeRates.convert(transaction.amount, transaction.currency, currency),
+        amount: await this.exchangeRates.convert(
+          transaction.amount,
+          transaction.currency,
+          currency,
+        ),
       })),
     );
 
@@ -212,7 +215,13 @@ export class DashboardService {
           periodStart,
           category: { type: CategoryType.EXPENSE },
         },
-        select: { id: true, categoryId: true, amount: true, currency: true, category: { select: { name: true } } },
+        select: {
+          id: true,
+          categoryId: true,
+          amount: true,
+          currency: true,
+          category: { select: { name: true } },
+        },
       }),
       this.prisma.savingsGoal.findMany({
         where: { userId, status: { in: [GoalStatus.ACTIVE, GoalStatus.COMPLETED] } },
@@ -231,8 +240,23 @@ export class DashboardService {
             },
             _sum: { amount: true },
           });
-    const normalizedBudgets = await Promise.all(budgets.map(async (budget) => ({ ...budget, amount: await this.exchangeRates.convert(budget.amount, budget.currency, currency) })));
-    const normalizedGoals = await Promise.all(goals.map(async (goal) => ({ ...goal, currentAmount: await this.exchangeRates.convert(goal.currentAmount, goal.currency, currency), targetAmount: await this.exchangeRates.convert(goal.targetAmount, goal.currency, currency) })));
+    const normalizedBudgets = await Promise.all(
+      budgets.map(async (budget) => ({
+        ...budget,
+        amount: await this.exchangeRates.convert(budget.amount, budget.currency, currency),
+      })),
+    );
+    const normalizedGoals = await Promise.all(
+      goals.map(async (goal) => ({
+        ...goal,
+        currentAmount: await this.exchangeRates.convert(
+          goal.currentAmount,
+          goal.currency,
+          currency,
+        ),
+        targetAmount: await this.exchangeRates.convert(goal.targetAmount, goal.currency, currency),
+      })),
+    );
     const spent = await this.convertCategoryTotals(spendingByCategory, currency);
     const missingSignals: FinancialHealthSignal[] = [];
     if (income.isZero()) missingSignals.push('income');
@@ -241,8 +265,10 @@ export class DashboardService {
 
     const savingsRate = income.isZero() ? null : income.minus(expense).div(income).mul(100);
     const savingsScore = savingsRate === null ? null : this.scaleSavingsScore(savingsRate);
-    const budgetScore = normalizedBudgets.length === 0 ? null : this.calculateBudgetScore(normalizedBudgets, spent);
-    const goalScore = normalizedGoals.length === 0 ? null : this.calculateGoalScore(normalizedGoals);
+    const budgetScore =
+      normalizedBudgets.length === 0 ? null : this.calculateBudgetScore(normalizedBudgets, spent);
+    const goalScore =
+      normalizedGoals.length === 0 ? null : this.calculateGoalScore(normalizedGoals);
     const components: FinancialHealthComponent[] = [
       {
         key: 'savingsRate',
@@ -327,17 +353,53 @@ export class DashboardService {
     const [health, currentIncome, currentExpense, previousIncome, previousExpense, budgets, goals] =
       await Promise.all([
         this.getFinancialHealth(userId, { currency }),
-        this.sumConvertedWhere({ ...where, type: TransactionType.INCOME, occurredAt: { gte: monthStart, lt: monthEnd } }, currency),
-        this.sumConvertedWhere({ ...where, type: TransactionType.EXPENSE, occurredAt: { gte: monthStart, lt: monthEnd } }, currency),
-        this.sumConvertedWhere({ ...where, type: TransactionType.INCOME, occurredAt: { gte: previousMonthStart, lt: monthStart } }, currency),
-        this.sumConvertedWhere({ ...where, type: TransactionType.EXPENSE, occurredAt: { gte: previousMonthStart, lt: monthStart } }, currency),
+        this.sumConvertedWhere(
+          { ...where, type: TransactionType.INCOME, occurredAt: { gte: monthStart, lt: monthEnd } },
+          currency,
+        ),
+        this.sumConvertedWhere(
+          {
+            ...where,
+            type: TransactionType.EXPENSE,
+            occurredAt: { gte: monthStart, lt: monthEnd },
+          },
+          currency,
+        ),
+        this.sumConvertedWhere(
+          {
+            ...where,
+            type: TransactionType.INCOME,
+            occurredAt: { gte: previousMonthStart, lt: monthStart },
+          },
+          currency,
+        ),
+        this.sumConvertedWhere(
+          {
+            ...where,
+            type: TransactionType.EXPENSE,
+            occurredAt: { gte: previousMonthStart, lt: monthStart },
+          },
+          currency,
+        ),
         this.prisma.budget.findMany({
           where: { userId, period: BudgetPeriod.MONTHLY, periodStart },
-          select: { categoryId: true, amount: true, currency: true, category: { select: { name: true } } },
+          select: {
+            categoryId: true,
+            amount: true,
+            currency: true,
+            category: { select: { name: true } },
+          },
         }),
         this.prisma.savingsGoal.findMany({
           where: { userId, status: GoalStatus.ACTIVE },
-          select: { name: true, currentAmount: true, targetAmount: true, currency: true, targetDate: true, createdAt: true },
+          select: {
+            name: true,
+            currentAmount: true,
+            targetAmount: true,
+            currency: true,
+            targetDate: true,
+            createdAt: true,
+          },
         }),
       ]);
     const spending = budgets.length
@@ -352,15 +414,33 @@ export class DashboardService {
           _sum: { amount: true },
         })
       : [];
-    const normalizedBudgets = await Promise.all(budgets.map(async (budget) => ({ ...budget, amount: await this.exchangeRates.convert(budget.amount, budget.currency, currency) })));
-    const normalizedGoals = await Promise.all(goals.map(async (goal) => ({ ...goal, currentAmount: await this.exchangeRates.convert(goal.currentAmount, goal.currency, currency), targetAmount: await this.exchangeRates.convert(goal.targetAmount, goal.currency, currency) })));
+    const normalizedBudgets = await Promise.all(
+      budgets.map(async (budget) => ({
+        ...budget,
+        amount: await this.exchangeRates.convert(budget.amount, budget.currency, currency),
+      })),
+    );
+    const normalizedGoals = await Promise.all(
+      goals.map(async (goal) => ({
+        ...goal,
+        currentAmount: await this.exchangeRates.convert(
+          goal.currentAmount,
+          goal.currency,
+          currency,
+        ),
+        targetAmount: await this.exchangeRates.convert(goal.targetAmount, goal.currency, currency),
+      })),
+    );
     const spentByCategory = await this.convertCategoryTotals(spending, currency);
     const exceeded = normalizedBudgets.find((budget) =>
       (spentByCategory.get(budget.categoryId) ?? new Prisma.Decimal(0)).gt(budget.amount),
     );
     const behindGoal = normalizedGoals.find((goal) => {
-      if (!goal.targetDate || goal.targetDate <= now || goal.targetDate <= goal.createdAt) return false;
-      const expected = (now.getTime() - goal.createdAt.getTime()) / (goal.targetDate.getTime() - goal.createdAt.getTime());
+      if (!goal.targetDate || goal.targetDate <= now || goal.targetDate <= goal.createdAt)
+        return false;
+      const expected =
+        (now.getTime() - goal.createdAt.getTime()) /
+        (goal.targetDate.getTime() - goal.createdAt.getTime());
       return goal.currentAmount.div(goal.targetAmount).toNumber() < expected * 0.8;
     });
     const currentRate = currentIncome.isZero()
@@ -510,7 +590,11 @@ export class DashboardService {
     });
     const amounts = await Promise.all(
       rows.map((row) =>
-        this.exchangeRates.convert(row._sum.amount ?? new Prisma.Decimal(0), row.currency, targetCurrency),
+        this.exchangeRates.convert(
+          row._sum.amount ?? new Prisma.Decimal(0),
+          row.currency,
+          targetCurrency,
+        ),
       ),
     );
     return amounts.reduce((sum, amount) => sum.add(amount), new Prisma.Decimal(0));
@@ -520,25 +604,40 @@ export class DashboardService {
     rows: { categoryId: string; currency: Currency; _sum: { amount: Prisma.Decimal | null } }[],
     targetCurrency: Currency,
   ): Promise<Map<string, Prisma.Decimal>> {
-    const converted = await Promise.all(rows.map(async (row) => ({
-      categoryId: row.categoryId,
-      amount: await this.exchangeRates.convert(row._sum.amount ?? new Prisma.Decimal(0), row.currency, targetCurrency),
-    })));
+    const converted = await Promise.all(
+      rows.map(async (row) => ({
+        categoryId: row.categoryId,
+        amount: await this.exchangeRates.convert(
+          row._sum.amount ?? new Prisma.Decimal(0),
+          row.currency,
+          targetCurrency,
+        ),
+      })),
+    );
     return converted.reduce((totals, row) => {
-      totals.set(row.categoryId, (totals.get(row.categoryId) ?? new Prisma.Decimal(0)).add(row.amount));
+      totals.set(
+        row.categoryId,
+        (totals.get(row.categoryId) ?? new Prisma.Decimal(0)).add(row.amount),
+      );
       return totals;
     }, new Map<string, Prisma.Decimal>());
   }
 
   private async sumConverted(
-    totals: { currency: Currency; type: TransactionType; _sum: { amount: Prisma.Decimal | null } }[],
+    totals: {
+      currency: Currency;
+      type: TransactionType;
+      _sum: { amount: Prisma.Decimal | null };
+    }[],
     targetCurrency: Currency,
     type: TransactionType,
   ): Promise<Prisma.Decimal> {
     const converted = await Promise.all(
       totals
         .filter((total) => total.type === type && total._sum.amount)
-        .map((total) => this.exchangeRates.convert(total._sum.amount!, total.currency, targetCurrency)),
+        .map((total) =>
+          this.exchangeRates.convert(total._sum.amount!, total.currency, targetCurrency),
+        ),
     );
     return converted.reduce((sum, amount) => sum.plus(amount), new Prisma.Decimal(0));
   }
@@ -565,17 +664,38 @@ export class DashboardService {
       GROUP BY bucket, currency
       ORDER BY bucket
     `);
-    const converted = await Promise.all(rows.map(async (row) => ({
-      bucket: row.bucket,
-      income: await this.exchangeRates.convert(new Prisma.Decimal(row.income), row.currency, targetCurrency),
-      expense: await this.exchangeRates.convert(new Prisma.Decimal(row.expense), row.currency, targetCurrency),
-    })));
+    const converted = await Promise.all(
+      rows.map(async (row) => ({
+        bucket: row.bucket,
+        income: await this.exchangeRates.convert(
+          new Prisma.Decimal(row.income),
+          row.currency,
+          targetCurrency,
+        ),
+        expense: await this.exchangeRates.convert(
+          new Prisma.Decimal(row.expense),
+          row.currency,
+          targetCurrency,
+        ),
+      })),
+    );
     const totals = new Map<string, { income: Prisma.Decimal; expense: Prisma.Decimal }>();
     for (const row of converted) {
-      const current = totals.get(row.bucket) ?? { income: new Prisma.Decimal(0), expense: new Prisma.Decimal(0) };
-      totals.set(row.bucket, { income: current.income.plus(row.income), expense: current.expense.plus(row.expense) });
+      const current = totals.get(row.bucket) ?? {
+        income: new Prisma.Decimal(0),
+        expense: new Prisma.Decimal(0),
+      };
+      totals.set(row.bucket, {
+        income: current.income.plus(row.income),
+        expense: current.expense.plus(row.expense),
+      });
     }
-    return [...totals.entries()].map(([bucket, total]) => ({ bucket, currency: targetCurrency, income: total.income.toString(), expense: total.expense.toString() }));
+    return [...totals.entries()].map(([bucket, total]) => ({
+      bucket,
+      currency: targetCurrency,
+      income: total.income.toString(),
+      expense: total.expense.toString(),
+    }));
   }
 
   private createRange(period: DashboardPeriod, now: Date): { end: Date; start: Date } {
