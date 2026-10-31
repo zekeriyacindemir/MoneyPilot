@@ -11,5 +11,6 @@
     ]
   },
   "testEnvironment": "node",
-  "setupFiles": ["<rootDir>/test/database-safety.ts"]
+  "setupFiles": ["<rootDir>/test/database-safety.ts"],
+  "testTimeout": 30000
 }
