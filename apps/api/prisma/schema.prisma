@@ -44,6 +44,12 @@ enum GoalPriority {
   HIGH
 }
 
+enum RecurrenceFrequency {
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
 enum Currency {
   TRY
   USD
@@ -52,60 +58,95 @@ enum Currency {
 }
 
 model User {
-  id              String        @id @default(uuid()) @db.Uuid
-  email           String        @unique @db.VarChar(320)
-  passwordHash    String        @db.VarChar(255)
-  displayName     String?       @db.VarChar(100)
-  defaultCurrency Currency      @default(TRY)
-  budgetAlertsEnabled Boolean   @default(true)
-  savingsGoalAlertsEnabled Boolean @default(true)
-  weeklySummaryEnabled Boolean  @default(false)
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  categories      Category[]
-  transactions    Transaction[]
-  budgets         Budget[]
-  savingsGoals    SavingsGoal[]
-  authSessions    AuthSession[]
-  passwordResets  PasswordReset[]
+  id                       String                 @id @default(uuid()) @db.Uuid
+  email                    String                 @unique @db.VarChar(320)
+  passwordHash             String                 @db.VarChar(255)
+  displayName              String?                @db.VarChar(100)
+  defaultCurrency          Currency               @default(TRY)
+  budgetAlertsEnabled      Boolean                @default(true)
+  savingsGoalAlertsEnabled Boolean                @default(true)
+  weeklySummaryEnabled     Boolean                @default(false)
+  openingBalance           Decimal                @default(0) @db.Decimal(19, 4)
+  openingBalanceCurrency   Currency               @default(TRY)
+  createdAt                DateTime               @default(now())
+  updatedAt                DateTime               @updatedAt
+  categories               Category[]
+  transactions             Transaction[]
+  budgets                  Budget[]
+  savingsGoals             SavingsGoal[]
+  recurringTransactions    RecurringTransaction[]
+  authSessions             AuthSession[]
+  passwordResets           PasswordReset[]
 }
 
 model Category {
-  id           String        @id @default(uuid()) @db.Uuid
-  userId       String?       @db.Uuid
-  name         String        @db.VarChar(100)
-  type         CategoryType
-  isSystem     Boolean       @default(false)
-  color        String?       @db.VarChar(7)
-  icon         String?       @db.VarChar(50)
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  user         User?         @relation(fields: [userId], references: [id], onDelete: Restrict)
-  transactions Transaction[]
-  budgets      Budget[]
+  id                    String                 @id @default(uuid()) @db.Uuid
+  userId                String?                @db.Uuid
+  name                  String                 @db.VarChar(100)
+  type                  CategoryType
+  isSystem              Boolean                @default(false)
+  color                 String?                @db.VarChar(7)
+  icon                  String?                @db.VarChar(50)
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  user                  User?                  @relation(fields: [userId], references: [id], onDelete: Restrict)
+  transactions          Transaction[]
+  budgets               Budget[]
+  recurringTransactions RecurringTransaction[]
 
   @@index([userId, type])
   @@index([isSystem, type])
 }
 
 model Transaction {
-  id            String         @id @default(uuid()) @db.Uuid
-  userId        String         @db.Uuid
-  categoryId    String         @db.Uuid
-  type          TransactionType
-  amount        Decimal        @db.Decimal(19, 4)
-  currency      Currency
-  paymentMethod PaymentMethod?
-  note          String?        @db.VarChar(500)
-  occurredAt    DateTime
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  user          User           @relation(fields: [userId], references: [id], onDelete: Restrict)
-  category      Category       @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  id                     String                @id @default(uuid()) @db.Uuid
+  userId                 String                @db.Uuid
+  categoryId             String                @db.Uuid
+  type                   TransactionType
+  amount                 Decimal               @db.Decimal(19, 4)
+  currency               Currency
+  paymentMethod          PaymentMethod?
+  note                   String?               @db.VarChar(500)
+  occurredAt             DateTime
+  recurringTransactionId String?               @db.Uuid
+  recurrenceIndex        Int?
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+  user                   User                  @relation(fields: [userId], references: [id], onDelete: Restrict)
+  category               Category              @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  recurringTransaction   RecurringTransaction? @relation(fields: [recurringTransactionId], references: [id], onDelete: SetNull)
 
+  @@unique([recurringTransactionId, recurrenceIndex])
   @@index([userId, occurredAt])
   @@index([userId, type, occurredAt])
   @@index([userId, categoryId, occurredAt])
+}
+
+/// A schedule that materializes Transaction rows when occurrences become due.
+/// Occurrence n falls on startDate + n * frequency, clamped to the end of shorter months.
+model RecurringTransaction {
+  id              String              @id @default(uuid()) @db.Uuid
+  userId          String              @db.Uuid
+  categoryId      String              @db.Uuid
+  type            TransactionType
+  amount          Decimal             @db.Decimal(19, 4)
+  currency        Currency
+  paymentMethod   PaymentMethod?
+  note            String?             @db.VarChar(500)
+  frequency       RecurrenceFrequency
+  startDate       DateTime            @db.Date
+  endDate         DateTime?           @db.Date
+  occurrenceIndex Int                 @default(0)
+  nextRunOn       DateTime?           @db.Date
+  isActive        Boolean             @default(true)
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  user            User                @relation(fields: [userId], references: [id], onDelete: Restrict)
+  category        Category            @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  transactions    Transaction[]
+
+  @@index([userId])
+  @@index([isActive, nextRunOn])
 }
 
 model Budget {
@@ -145,15 +186,15 @@ model SavingsGoal {
 }
 
 model AuthSession {
-  id               String   @id @default(uuid()) @db.Uuid
-  userId           String   @db.Uuid
-  refreshTokenHash String   @unique @db.Char(64)
+  id               String    @id @default(uuid()) @db.Uuid
+  userId           String    @db.Uuid
+  refreshTokenHash String    @unique @db.Char(64)
   expiresAt        DateTime
   revokedAt        DateTime?
   lastUsedAt       DateTime?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, revokedAt])
   @@index([expiresAt])
@@ -166,6 +207,7 @@ model PasswordReset {
   expiresAt DateTime
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId])
   @@index([expiresAt])
 }

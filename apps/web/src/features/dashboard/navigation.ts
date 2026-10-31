@@ -16,6 +16,12 @@ export const dashboardNavigation: DashboardNavigationItem[] = [
     icon: 'arrows',
   },
   {
+    title: 'Tekrarlayan',
+    description: 'Düzenli gelir ve giderler',
+    href: '/dashboard/recurring',
+    icon: 'repeat',
+  },
+  {
     title: 'Bütçeler',
     description: 'Bütçe planlarınız',
     href: '/dashboard/budgets',

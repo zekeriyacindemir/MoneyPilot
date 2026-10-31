@@ -106,7 +106,7 @@ export function TransactionsPageClient() {
   return (
     <div className="space-y-7">
       <PageHeader
-        title="Transactions"
+        title="İşlemler"
         description="Gelir ve gider kayıtlarınızı görüntüleyin, filtreleyin ve yönetin."
         action={
           <button
@@ -373,6 +373,7 @@ function TransactionTableRow({
           style={{ backgroundColor: transaction.category.color ?? '#94a3b8' }}
         />
         {transaction.category.name}
+        {transaction.recurringTransactionId ? <RecurringBadge /> : null}
       </td>
       <td className="px-5 py-4">
         <TypeBadge type={transaction.type} />
@@ -434,6 +435,7 @@ function TransactionMobileCard({
       </div>
       <div className="mt-3 flex flex-wrap gap-2 text-xs">
         <TypeBadge type={transaction.type} />
+        {transaction.recurringTransactionId ? <RecurringBadge /> : null}
         <span className="rounded-full bg-slate-100 px-2.5 py-1 font-medium text-slate-600">
           {transaction.paymentMethod
             ? paymentMethodLabels[transaction.paymentMethod]
@@ -458,6 +460,16 @@ function TransactionMobileCard({
         </button>
       </div>
     </article>
+  );
+}
+function RecurringBadge() {
+  return (
+    <span
+      title="Tekrarlayan bir işlemden otomatik oluşturuldu"
+      className="ml-2 inline-flex rounded-full bg-[var(--secondary)] px-2 py-0.5 text-[11px] font-semibold text-[var(--secondary-foreground)]"
+    >
+      Tekrarlı
+    </span>
   );
 }
 function TypeBadge({ type }: { type: TransactionType }) {

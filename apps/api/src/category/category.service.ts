@@ -105,17 +105,19 @@ export class CategoryService {
       await this.prisma.$transaction(async (prisma) => {
         await this.findOwnedCategory(prisma, userId, id);
 
-        const [transactionCount, budgetCount] = await Promise.all([
+        const [transactionCount, budgetCount, recurringTransactionCount] = await Promise.all([
           prisma.transaction.count({ where: { categoryId: id } }),
           prisma.budget.count({ where: { categoryId: id } }),
+          prisma.recurringTransaction.count({ where: { categoryId: id } }),
         ]);
-        if (transactionCount > 0 || budgetCount > 0) {
+        if (transactionCount > 0 || budgetCount > 0 || recurringTransactionCount > 0) {
           throw new ConflictException({
             statusCode: 409,
             error: 'Conflict',
-            message: 'The category is used by transactions or budgets and cannot be deleted.',
+            message: 'The category is in use and cannot be deleted.',
             transactionCount,
             budgetCount,
+            recurringTransactionCount,
           });
         }
 
@@ -124,9 +126,7 @@ export class CategoryService {
     } catch (error) {
       // A transaction or budget may reference the category after the usage check.
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2003') {
-        throw new ConflictException(
-          'The category is used by transactions or budgets and cannot be deleted.',
-        );
+        throw new ConflictException('The category is in use and cannot be deleted.');
       }
       throw error;
     }

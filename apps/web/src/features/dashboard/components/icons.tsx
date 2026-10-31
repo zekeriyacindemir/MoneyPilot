@@ -11,6 +11,7 @@ export type IconName =
   | 'menu'
   | 'moon'
   | 'monitor'
+  | 'repeat'
   | 'settings'
   | 'sun'
   | 'target'
@@ -55,6 +56,12 @@ export function Icon({ name, ...properties }: IconProps) {
         <svg {...sharedProperties}>
           <path d="M20 11.5a7.5 7.5 0 0 1-8 7.48 8.8 8.8 0 0 1-3.8-.9L4 19l1.15-3.35A7.3 7.3 0 0 1 4.5 12a7.5 7.5 0 0 1 15-0.5Z" />
           <path d="M8 12h.01M12 12h.01M16 12h.01" />
+        </svg>
+      );
+    case 'repeat':
+      return (
+        <svg {...sharedProperties}>
+          <path d="M17 2l4 4-4 4M3 11v-1a4 4 0 0 1 4-4h14M7 22l-4-4 4-4M21 13v1a4 4 0 0 1-4 4H3" />
         </svg>
       );
     case 'chevron':

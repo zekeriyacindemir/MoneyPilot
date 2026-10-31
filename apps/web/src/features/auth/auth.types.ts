@@ -7,6 +7,8 @@ export interface User {
   budgetAlertsEnabled: boolean;
   savingsGoalAlertsEnabled: boolean;
   weeklySummaryEnabled: boolean;
+  openingBalance: string;
+  openingBalanceCurrency: Currency;
 }
 
 export type Currency = 'TRY' | 'USD' | 'EUR' | 'GBP';
@@ -27,6 +29,8 @@ export interface PreferencesRequest {
   budgetAlertsEnabled?: boolean;
   savingsGoalAlertsEnabled?: boolean;
   weeklySummaryEnabled?: boolean;
+  openingBalance?: string;
+  openingBalanceCurrency?: Currency;
 }
 
 export interface AuthResponse {

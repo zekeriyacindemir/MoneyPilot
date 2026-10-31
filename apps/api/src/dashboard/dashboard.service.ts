@@ -117,40 +117,53 @@ export class DashboardService {
       ...userWhere,
       occurredAt: { gte: range.start, lt: range.end },
     };
-    const [allTimeTotals, periodTotals, recentTransactions, trendRows] = await Promise.all([
-      this.prisma.transaction.groupBy({
-        by: ['currency', 'type'],
-        where: userWhere,
-        _sum: { amount: true },
-      }),
-      this.prisma.transaction.groupBy({
-        by: ['currency', 'type'],
-        where: periodWhere,
-        _sum: { amount: true },
-      }),
-      this.prisma.transaction.findMany({
-        where: userWhere,
-        take: 5,
-        orderBy: { occurredAt: 'desc' },
-        select: {
-          id: true,
-          type: true,
-          amount: true,
-          currency: true,
-          occurredAt: true,
-          category: {
-            select: { id: true, name: true, type: true, color: true, icon: true },
+    const [allTimeTotals, periodTotals, recentTransactions, trendRows, openingBalance] =
+      await Promise.all([
+        this.prisma.transaction.groupBy({
+          by: ['currency', 'type'],
+          where: userWhere,
+          _sum: { amount: true },
+        }),
+        this.prisma.transaction.groupBy({
+          by: ['currency', 'type'],
+          where: periodWhere,
+          _sum: { amount: true },
+        }),
+        this.prisma.transaction.findMany({
+          where: userWhere,
+          take: 5,
+          orderBy: { occurredAt: 'desc' },
+          select: {
+            id: true,
+            type: true,
+            amount: true,
+            currency: true,
+            occurredAt: true,
+            category: {
+              select: { id: true, name: true, type: true, color: true, icon: true },
+            },
           },
-        },
-      }),
-      this.getTrendRows(userId, currency, range.start, range.end, period === 'current_month'),
-    ]);
-    const [allTimeIncome, allTimeExpense, periodIncome, periodExpense] = await Promise.all([
-      this.sumConverted(allTimeTotals, currency, TransactionType.INCOME),
-      this.sumConverted(allTimeTotals, currency, TransactionType.EXPENSE),
-      this.sumConverted(periodTotals, currency, TransactionType.INCOME),
-      this.sumConverted(periodTotals, currency, TransactionType.EXPENSE),
-    ]);
+        }),
+        this.getTrendRows(userId, currency, range.start, range.end, period === 'current_month'),
+        this.prisma.user.findUnique({
+          where: { id: userId },
+          select: { openingBalance: true, openingBalanceCurrency: true },
+        }),
+      ]);
+    const [allTimeIncome, allTimeExpense, periodIncome, periodExpense, convertedOpeningBalance] =
+      await Promise.all([
+        this.sumConverted(allTimeTotals, currency, TransactionType.INCOME),
+        this.sumConverted(allTimeTotals, currency, TransactionType.EXPENSE),
+        this.sumConverted(periodTotals, currency, TransactionType.INCOME),
+        this.sumConverted(periodTotals, currency, TransactionType.EXPENSE),
+        openingBalance && !openingBalance.openingBalance.isZero()
+          ? this.exchangeRates.convert(
+              openingBalance.openingBalance,
+              openingBalance.openingBalanceCurrency,
+              currency,
+            )
+          : new Prisma.Decimal(0),
+      ]);
     const convertedTransactions = await Promise.all(
       recentTransactions.map(async (transaction) => ({
         ...transaction,
@@ -165,7 +178,7 @@ export class DashboardService {
     return {
       currency,
       period,
-      totalBalance: allTimeIncome.minus(allTimeExpense).toString(),
+      totalBalance: convertedOpeningBalance.plus(allTimeIncome).minus(allTimeExpense).toString(),
       periodIncome: periodIncome.toString(),
       periodExpense: periodExpense.toString(),
       savingsRate: periodIncome.isZero()

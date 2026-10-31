@@ -139,21 +139,23 @@ export class CategoryController {
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiOperation({
     summary: 'Delete an unused private category',
-    description: 'Categories referenced by transactions or budgets cannot be deleted.',
+    description:
+      'Categories referenced by transactions, budgets or recurring transactions cannot be deleted.',
   })
   @ApiNoContentResponse({ description: 'Category deleted.' })
   @ApiUnauthorizedResponse(unauthorized)
   @ApiForbiddenResponse(systemCategory)
   @ApiNotFoundResponse(notFound)
   @ApiConflictResponse({
-    description: 'The category is used by transactions or budgets.',
+    description: 'The category is in use.',
     schema: {
       example: {
         statusCode: 409,
         error: 'Conflict',
-        message: 'The category is used by transactions or budgets and cannot be deleted.',
+        message: 'The category is in use and cannot be deleted.',
         transactionCount: 12,
         budgetCount: 1,
+        recurringTransactionCount: 0,
       },
     },
   })

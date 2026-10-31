@@ -35,6 +35,7 @@ export interface TransactionResponse {
   paymentMethod: TransactionWithCategory['paymentMethod'];
   note: string | null;
   occurredAt: Date;
+  recurringTransactionId: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -227,6 +228,7 @@ export class TransactionService {
       paymentMethod: transaction.paymentMethod,
       note: transaction.note,
       occurredAt: transaction.occurredAt,
+      recurringTransactionId: transaction.recurringTransactionId,
       createdAt: transaction.createdAt,
       updatedAt: transaction.updatedAt,
     };

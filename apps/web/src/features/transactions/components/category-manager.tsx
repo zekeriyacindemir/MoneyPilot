@@ -35,18 +35,31 @@ const input =
   'h-10 w-full rounded-xl border bg-[var(--background)] px-3 text-sm outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--secondary)]';
 
 function categoryErrorMessage(error: unknown): string {
-  if (!isAxiosError<{ transactionCount?: number; budgetCount?: number }>(error)) {
+  if (
+    !isAxiosError<{
+      transactionCount?: number;
+      budgetCount?: number;
+      recurringTransactionCount?: number;
+    }>(error)
+  ) {
     return 'İşlem tamamlanamadı. Lütfen tekrar deneyin.';
   }
   const status = error.response?.status;
-  const { transactionCount = 0, budgetCount = 0 } = error.response?.data ?? {};
+  const {
+    transactionCount = 0,
+    budgetCount = 0,
+    recurringTransactionCount = 0,
+  } = error.response?.data ?? {};
 
-  if (status === 409 && (transactionCount > 0 || budgetCount > 0)) {
+  if (status === 409 && transactionCount + budgetCount + recurringTransactionCount > 0) {
     const usages = [
       transactionCount > 0 ? `${transactionCount} işlem` : null,
       budgetCount > 0 ? `${budgetCount} bütçe` : null,
+      recurringTransactionCount > 0 ? `${recurringTransactionCount} tekrarlayan işlem` : null,
     ].filter(Boolean);
-    return `Bu kategori ${usages.join(' ve ')} tarafından kullanılıyor. Silmeden önce bu kayıtları başka bir kategoriye taşıyın.`;
+    const list =
+      usages.length > 1 ? `${usages.slice(0, -1).join(', ')} ve ${usages.at(-1)}` : usages[0];
+    return `Bu kategori ${list} tarafından kullanılıyor. Silmeden önce bu kayıtları başka bir kategoriye taşıyın veya silin.`;
   }
   if (status === 409) return 'Bu türde aynı isimli bir kategori zaten var.';
   if (status === 400) return 'Kategori bilgileri geçersiz veya kategori sınırına ulaştınız.';

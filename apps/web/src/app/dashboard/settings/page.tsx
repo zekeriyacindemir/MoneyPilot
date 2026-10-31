@@ -54,6 +54,10 @@ export default function SettingsPage() {
     newPassword: '',
     confirmation: '',
   });
+  const [openingBalance, setOpeningBalance] = useState({
+    amount: user?.openingBalance ?? '0',
+    currency: user?.openingBalanceCurrency ?? user?.defaultCurrency ?? 'TRY',
+  });
   const [notice, setNotice] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [dangerPassword, setDangerPassword] = useState('');
@@ -131,6 +135,18 @@ export default function SettingsPage() {
     } catch (error) {
       setNotice(errorMessage(error));
     }
+  }
+  async function submitOpeningBalance(event: FormEvent) {
+    event.preventDefault();
+    const amount = openingBalance.amount.trim().replace(',', '.');
+    if (!/^-?(?:0|[1-9]\d{0,14})(?:\.\d{1,4})?$/.test(amount)) {
+      setNotice('Başlangıç bakiyesi geçerli bir tutar olmalıdır (örn. 12500.50 veya -2000).');
+      return;
+    }
+    await savePreferences({
+      openingBalance: amount,
+      openingBalanceCurrency: openingBalance.currency,
+    });
   }
   async function endAll() {
     if (!window.confirm('Tüm oturumlar sonlandırılsın mı? Bu cihazdan da çıkış yapılacak.')) return;
@@ -329,6 +345,42 @@ export default function SettingsPage() {
                 ))}
               </select>
             </Field>
+            <form onSubmit={(event) => void submitOpeningBalance(event)} className="mt-5 space-y-2">
+              <Field label="Başlangıç bakiyesi">
+                <div className="flex gap-2">
+                  <input
+                    inputMode="decimal"
+                    value={openingBalance.amount}
+                    onChange={(event) =>
+                      setOpeningBalance({ ...openingBalance, amount: event.target.value })
+                    }
+                    className={input}
+                  />
+                  <select
+                    aria-label="Başlangıç bakiyesi para birimi"
+                    value={openingBalance.currency}
+                    onChange={(event) =>
+                      setOpeningBalance({
+                        ...openingBalance,
+                        currency: event.target.value as Currency,
+                      })
+                    }
+                    className={`${input} w-28 shrink-0`}
+                  >
+                    {(['TRY', 'USD', 'EUR', 'GBP'] as Currency[]).map((currency) => (
+                      <option key={currency}>{currency}</option>
+                    ))}
+                  </select>
+                </div>
+              </Field>
+              <p className="text-xs leading-5 text-[var(--muted-foreground)]">
+                İlk kaydınızdan önce sahip olduğunuz para. Toplam bakiyeye eklenir; borçla
+                başladıysanız eksi girin.
+              </p>
+              <button className={button} disabled={preferenceMutation.isPending}>
+                Bakiyeyi kaydet
+              </button>
+            </form>
             <div role="radiogroup" className="mt-5 space-y-2">
               {themes.map((item) => (
                 <button

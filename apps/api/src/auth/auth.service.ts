@@ -28,6 +28,8 @@ export interface AuthenticatedUser {
   budgetAlertsEnabled: boolean;
   savingsGoalAlertsEnabled: boolean;
   weeklySummaryEnabled: boolean;
+  openingBalance: string;
+  openingBalanceCurrency: Currency;
 }
 
 export interface AuthenticationResult {
@@ -48,15 +50,34 @@ interface SessionCredentials {
   sessionId: string;
 }
 
-interface SessionUser {
-  id: string;
-  email: string;
-  displayName: string | null;
-  createdAt: Date;
-  defaultCurrency: Currency;
-  budgetAlertsEnabled: boolean;
-  savingsGoalAlertsEnabled: boolean;
-  weeklySummaryEnabled: boolean;
+const sessionUserSelect = {
+  id: true,
+  email: true,
+  displayName: true,
+  createdAt: true,
+  defaultCurrency: true,
+  budgetAlertsEnabled: true,
+  savingsGoalAlertsEnabled: true,
+  weeklySummaryEnabled: true,
+  openingBalance: true,
+  openingBalanceCurrency: true,
+} satisfies Prisma.UserSelect;
+
+type SessionUser = Prisma.UserGetPayload<{ select: typeof sessionUserSelect }>;
+
+function toAuthenticatedUser(user: SessionUser): AuthenticatedUser {
+  return {
+    id: user.id,
+    name: user.displayName ?? '',
+    email: user.email,
+    createdAt: user.createdAt,
+    defaultCurrency: user.defaultCurrency,
+    budgetAlertsEnabled: user.budgetAlertsEnabled,
+    savingsGoalAlertsEnabled: user.savingsGoalAlertsEnabled,
+    weeklySummaryEnabled: user.weeklySummaryEnabled,
+    openingBalance: user.openingBalance.toString(),
+    openingBalanceCurrency: user.openingBalanceCurrency,
+  };
 }
 
 @Injectable()
@@ -102,16 +123,7 @@ export class AuthService {
             },
           },
         },
-        select: {
-          id: true,
-          email: true,
-          displayName: true,
-          createdAt: true,
-          defaultCurrency: true,
-          budgetAlertsEnabled: true,
-          savingsGoalAlertsEnabled: true,
-          weeklySummaryEnabled: true,
-        },
+        select: sessionUserSelect,
       });
 
       return this.createAuthenticationResult(user, session);
@@ -128,17 +140,7 @@ export class AuthService {
     const email = loginDto.email.trim().toLowerCase();
     const user = await this.prisma.user.findUnique({
       where: { email },
-      select: {
-        id: true,
-        email: true,
-        displayName: true,
-        createdAt: true,
-        defaultCurrency: true,
-        budgetAlertsEnabled: true,
-        savingsGoalAlertsEnabled: true,
-        weeklySummaryEnabled: true,
-        passwordHash: true,
-      },
+      select: { ...sessionUserSelect, passwordHash: true },
     });
 
     if (!user || !(await argon2.verify(user.passwordHash, loginDto.password))) {
@@ -242,32 +244,14 @@ export class AuthService {
   async getCurrentUser(userId: string): Promise<AuthenticatedUser> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: {
-        id: true,
-        email: true,
-        displayName: true,
-        createdAt: true,
-        defaultCurrency: true,
-        budgetAlertsEnabled: true,
-        savingsGoalAlertsEnabled: true,
-        weeklySummaryEnabled: true,
-      },
+      select: sessionUserSelect,
     });
 
     if (!user) {
       throw new UnauthorizedException();
     }
 
-    return {
-      id: user.id,
-      name: user.displayName ?? '',
-      email: user.email,
-      createdAt: user.createdAt,
-      defaultCurrency: user.defaultCurrency,
-      budgetAlertsEnabled: user.budgetAlertsEnabled,
-      savingsGoalAlertsEnabled: user.savingsGoalAlertsEnabled,
-      weeklySummaryEnabled: user.weeklySummaryEnabled,
-    };
+    return toAuthenticatedUser(user);
   }
 
   async updateProfile(userId: string, dto: UpdateProfileDto): Promise<AuthenticatedUser> {
@@ -353,9 +337,12 @@ export class AuthService {
         email: true,
         displayName: true,
         defaultCurrency: true,
+        openingBalance: true,
+        openingBalanceCurrency: true,
         createdAt: true,
         categories: true,
         transactions: true,
+        recurringTransactions: true,
         budgets: true,
         savingsGoals: true,
       },
@@ -374,6 +361,7 @@ export class AuthService {
     await this.prisma.$transaction(async (tx) => {
       await tx.authSession.deleteMany({ where: { userId } });
       await tx.transaction.deleteMany({ where: { userId } });
+      await tx.recurringTransaction.deleteMany({ where: { userId } });
       await tx.budget.deleteMany({ where: { userId } });
       await tx.savingsGoal.deleteMany({ where: { userId } });
       await tx.category.deleteMany({ where: { userId, isSystem: false } });
@@ -411,16 +399,7 @@ export class AuthService {
         type: 'access',
       }),
       refreshToken: session.refreshToken,
-      user: {
-        id: user.id,
-        name: user.displayName ?? '',
-        email: user.email,
-        createdAt: user.createdAt,
-        defaultCurrency: user.defaultCurrency,
-        budgetAlertsEnabled: user.budgetAlertsEnabled,
-        savingsGoalAlertsEnabled: user.savingsGoalAlertsEnabled,
-        weeklySummaryEnabled: user.weeklySummaryEnabled,
-      },
+      user: toAuthenticatedUser(user),
     };
   }
 

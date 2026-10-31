@@ -34,7 +34,15 @@ Tokens are random, SHA-256 hashed in the database, valid for 20 minutes, single-
 
 Transaction amounts remain in their original currency. Dashboard, reports and budgets use cached current FX rates, so past displayed totals may change as rates change. They are not historical accounting valuations. Savings balances are manually maintained. Completed goals remain in the financial health score; paused/canceled goals retain their state on edits.
 
-Users manage private categories from Settings (up to 100 per user). Names are unique per type, case-insensitively, including system category names. A category type cannot change after creation, and a category referenced by transactions or budgets cannot be deleted; the API returns 409 with usage counts. System categories are read-only.
+Users manage private categories from Settings (up to 100 per user). Names are unique per type, case-insensitively, including system category names. A category type cannot change after creation, and a category referenced by transactions, budgets or recurring transactions cannot be deleted; the API returns 409 with usage counts. System categories are read-only.
+
+The opening balance (Settings) is money held before the first recorded transaction and may be negative. The dashboard total balance is the converted opening balance plus all income minus all expenses.
+
+## Recurring transactions
+
+Schedules (weekly, monthly or yearly) materialize ordinary transactions dated 09:00 Istanbul time on each due Istanbul calendar day. Monthly and yearly schedules keep their anchor day and fall back to the last day of shorter months. The API runs generation at startup and hourly in every non-test process; each schedule is row-locked and every occurrence has a unique (schedule, occurrence index) key, so several API instances can run it concurrently without duplicates. A start date may be up to one year in the past, in which case past occurrences are created immediately.
+
+Edits apply to future occurrences only. Changing the start date or frequency requires a start date of today or later and restarts the schedule. Pausing and resuming skips occurrences missed while paused. Deleting a schedule keeps the transactions it created and clears their link.
 
 ## Preview and AI
 

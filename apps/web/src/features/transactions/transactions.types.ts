@@ -40,6 +40,7 @@ export interface Transaction {
   paymentMethod: PaymentMethod | null;
   note: string | null;
   occurredAt: string;
+  recurringTransactionId: string | null;
   createdAt: string;
   updatedAt: string;
 }
