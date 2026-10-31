@@ -127,6 +127,31 @@ describe('Dashboard (e2e)', () => {
     expect(body.trend.some((point) => point.income === '100' && point.expense === '25')).toBe(true);
   });
 
+  it('buckets the daily trend by the Istanbul calendar day', async () => {
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Istanbul' }).format(
+      new Date(),
+    );
+    // 01:30 in Istanbul is still the previous day in UTC.
+    await createTransaction({
+      type: 'EXPENSE',
+      amount: '40',
+      currency: 'TRY',
+      categoryId: expenseCategoryId,
+      occurredAt: new Date(`${today}T01:30:00+03:00`),
+    });
+
+    const response = await request(application.getHttpServer())
+      .get('/dashboard/summary')
+      .query({ currency: 'TRY', period: 'current_month' })
+      .set('Authorization', `Bearer ${user.accessToken}`);
+    const body = response.body as DashboardResponse;
+
+    expect(response.status).toBe(200);
+    expect(body.trend.find((point) => point.period === today)).toEqual(
+      expect.objectContaining({ expense: '40' }),
+    );
+  });
+
   it('limits recent transactions, excludes other users, and returns a monthly trend for multi-month periods', async () => {
     for (let index = 0; index < 6; index += 1) {
       await createTransaction({

@@ -653,7 +653,8 @@ export class DashboardService {
 
     const rows = await this.prisma.$queryRaw<TrendRow[]>(Prisma.sql`
       SELECT
-        to_char("occurredAt" AT TIME ZONE 'Europe/Istanbul', ${format}) AS bucket,
+        -- occurredAt is a UTC timestamp without time zone: mark it as UTC, then convert.
+        to_char("occurredAt" AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Istanbul', ${format}) AS bucket,
         currency,
         COALESCE(SUM(CASE WHEN type = 'INCOME' THEN amount ELSE 0 END), 0)::text AS income,
         COALESCE(SUM(CASE WHEN type = 'EXPENSE' THEN amount ELSE 0 END), 0)::text AS expense
