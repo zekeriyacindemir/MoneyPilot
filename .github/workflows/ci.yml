@@ -35,10 +35,13 @@ jobs:
       - run: npm ci
       - run: npm run prisma:generate --workspace=@moneypilot/api
       - run: npx prisma migrate deploy --schema apps/api/prisma/schema.prisma
+      - name: Check that migrations match the Prisma schema
+        run: npx prisma migrate diff --from-url "$DATABASE_URL" --to-schema-datamodel apps/api/prisma/schema.prisma --exit-code
       - run: npm test --workspace=@moneypilot/api
       - run: npm run format:check
       - run: npm run lint
       - run: npm run typecheck
       - run: npm run build
       - run: docker build -f docker/api.Dockerfile -t moneypilot-api:ci .
-      - run: docker build -f docker/web.Dockerfile -t moneypilot-web:ci .
+      - run: docker build -f docker/api.Dockerfile --target migrate -t moneypilot-migrate:ci .
+      - run: docker build -f docker/web.Dockerfile --build-arg NEXT_PUBLIC_API_URL=https://api.example.com -t moneypilot-web:ci .

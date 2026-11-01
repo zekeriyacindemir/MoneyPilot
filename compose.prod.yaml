@@ -1,0 +1,72 @@
+# Self-hosted production stack: docker compose -f compose.prod.yaml --env-file .env.production up -d --build
+# Put a TLS-terminating reverse proxy (Caddy, Nginx, Traefik) in front of web and api.
+name: moneypilot-prod
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-moneypilot}
+      POSTGRES_USER: ${POSTGRES_USER:-moneypilot}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.production}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  migrate:
+    build:
+      context: .
+      dockerfile: docker/api.Dockerfile
+      target: migrate
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-moneypilot}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-moneypilot}?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: 'no'
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/api.Dockerfile
+      target: production
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      API_PORT: 3001
+      DATABASE_URL: postgresql://${POSTGRES_USER:-moneypilot}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-moneypilot}?schema=public
+      CORS_ORIGIN: ${WEB_ORIGIN:?Set WEB_ORIGIN in .env.production}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?Set JWT_ACCESS_SECRET in .env.production}
+      REFRESH_TOKEN_HMAC_SECRET: ${REFRESH_TOKEN_HMAC_SECRET:?Set REFRESH_TOKEN_HMAC_SECRET in .env.production}
+      TRUST_PROXY: ${TRUST_PROXY:-1}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    ports:
+      - '127.0.0.1:3001:3001'
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/web.Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${API_ORIGIN:?Set API_ORIGIN in .env.production}
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - '127.0.0.1:3000:3000'
+
+volumes:
+  postgres_data:

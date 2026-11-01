@@ -22,13 +22,16 @@ Tokens are random, SHA-256 hashed in the database, valid for 20 minutes, single-
 
 ## Release procedure
 
-1. Provision PostgreSQL and private backups; create the application secrets in the deployment secret store.
-2. Build both images. Set NEXT_PUBLIC_API_URL during the web build to the HTTPS API URL. Keep web and API same-site for the Lax refresh cookie.
-3. Take a database backup and verify it can be restored into an isolated database.
-4. Run Prisma migrate deploy with the release tooling image/source checkout before changing application replicas. Do not run migrate reset or db push in production.
-5. Deploy images, verify /health, registration/login, a transaction, a mixed-currency budget and password recovery against a controlled account.
-6. Route access through HTTPS; enforce a shared authentication rate limit at the proxy before scaling beyond one API process. The built-in guard is in-memory and uses the direct peer IP; forwarded headers are intentionally not trusted by default.
-7. Forward process logs to the hosting log service, alert on 5xx/health failures and schedule automated PostgreSQL backups with retention. Test restoration periodically. These external services are not provisioned by this code change.
+The repository ships a self-hosted stack in `compose.prod.yaml`. Copy `.env.production.example` to `.env.production` (git-ignored), fill in the secrets and public origins, then run `docker compose -f compose.prod.yaml --env-file .env.production up -d --build`. The `migrate` service applies Prisma migrations and must finish successfully before the API starts; the web image waits for a healthy API. Both application ports bind to 127.0.0.1 only, so a TLS-terminating reverse proxy (Caddy, Nginx, Traefik) must expose them over HTTPS. Keep web and API same-site for the Lax refresh cookie.
+
+1. Take a backup (`scripts/backup-db.sh moneypilot-prod-postgres-1`) and verify it can be restored into an isolated database before every release.
+2. Build the images. The web build requires `NEXT_PUBLIC_API_URL` (the compose file passes `API_ORIGIN`); it is inlined into the bundle and the Content-Security-Policy. Outside compose, run migrations with `docker build --target migrate` from `docker/api.Dockerfile`; the runtime image does not contain the Prisma CLI. Never run migrate reset or db push in production.
+3. Deploy, then verify /health, registration/login, a transaction, a mixed-currency budget, a recurring transaction and password recovery against a controlled account.
+4. Set `TRUST_PROXY` to the number of reverse proxies in front of the API (1 for a single proxy). Without it every client shares the proxy IP and the authentication rate limit locks everyone out together. The limit is per process; add a shared limit at the proxy before running more than one API replica.
+5. In production the API writes one JSON log line per event, including an access line per request with method, path (no query string), status, duration and `X-Request-Id`. Forward container logs to a log service and alert on 5xx responses and failing health checks; both images define Docker health checks. External monitoring (for example Sentry or uptime checks) is not provisioned by this repository.
+6. Schedule `scripts/backup-db.sh` daily (it verifies each dump with `pg_restore --list` and keeps 14 days by default), copy `backups/` off the machine and test a full restore periodically.
+
+Security headers: the web app sends a Content-Security-Policy (no external scripts, connections only to itself and the API origin, no framing), HSTS in production and `upgrade-insecure-requests` when the API origin is HTTPS. The production API sends `default-src 'none'` CSP and HSTS. CI fails when the Prisma schema and migrations diverge.
 
 ## Accounting conventions
 
