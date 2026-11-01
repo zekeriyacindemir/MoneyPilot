@@ -1,8 +1,16 @@
 node_modules
+**/node_modules
 .next
+**/.next
 dist
+**/dist
 coverage
 .git
-.env
-.env.local
+.github
+.claude
+.agents
 *.log
+# Secrets at any depth (the root-only pattern let apps/api/.env into the build context).
+**/.env
+**/.env.*
+!**/.env.example
