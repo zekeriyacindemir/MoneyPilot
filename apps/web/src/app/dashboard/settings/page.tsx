@@ -403,7 +403,7 @@ export default function SettingsPage() {
           <DashboardCard className="p-5 sm:p-6">
             <SectionHeader
               title="Bildirimler"
-              description="Bu tercihler ilerideki e-posta/push teslimatları için saklanır; bu sürümde gönderim yapılmaz."
+              description="Bildirimler uygulama içinde zil simgesinde görünür; e-posta hizmeti yapılandırıldıysa e-posta olarak da gönderilir."
             />
             <div className="mt-4 space-y-3">
               {(

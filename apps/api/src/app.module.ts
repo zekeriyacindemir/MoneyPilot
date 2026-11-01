@@ -6,6 +6,7 @@ import { CategoryModule } from './category/category.module';
 import { validateEnvironment } from './config/environment.validation';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { HealthModule } from './health/health.module';
+import { NotificationModule } from './notification/notification.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RecurringTransactionModule } from './recurring-transaction/recurring-transaction.module';
 import { ReportsModule } from './reports/reports.module';
@@ -22,6 +23,7 @@ import { TransactionModule } from './transaction/transaction.module';
     BudgetModule,
     CategoryModule,
     DashboardModule,
+    NotificationModule,
     PrismaModule,
     RecurringTransactionModule,
     ReportsModule,

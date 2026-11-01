@@ -208,6 +208,7 @@ export class AuthController {
       categories: backup.categories,
       transactions: backup.transactions,
       recurring_transactions: backup.recurringTransactions,
+      notifications: backup.notifications,
       budgets: backup.budgets,
       savings_goals: backup.savingsGoals,
     }).map(([name, rows]) => ({

@@ -44,6 +44,12 @@ Schedules (weekly, monthly or yearly) materialize ordinary transactions dated 09
 
 Edits apply to future occurrences only. Changing the start date or frequency requires a start date of today or later and restarts the schedule. Pausing and resuming skips occurrences missed while paused. Deleting a schedule keeps the transactions it created and clears their link.
 
+## Notifications
+
+Alerts are stored as in-app notifications (header bell) and, when SMTP is configured, also emailed; email failures are logged without recipient data and do not remove the in-app notification. Each user preference gates one alert family: budget alerts (expense budgets at 80% and 100% of the current period), savings goal alerts (target date within seven days, completion within the last seven days) and the weekly summary (previous Monday–Sunday in Istanbul, only when the week had transactions). Every alert has a per-user dedupe key, so it is created and emailed at most once.
+
+Checks run hourly in every non-test API process (first run one minute after startup) and on demand when a user lists notifications, at most every five minutes per user and process. Overlapping runs are safe because of the dedupe keys. Push notifications are not implemented.
+
 ## Preview and AI
 
-The landing-page figures are labeled sample data. Authenticated pages only use the API. AI Assistant remains a coming-soon screen and makes no model calls. Notification preferences are stored, but scheduled email/push notifications are not implemented.
+The landing-page figures are labeled sample data. Authenticated pages only use the API. AI Assistant remains a coming-soon screen and makes no model calls.

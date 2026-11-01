@@ -343,6 +343,7 @@ export class AuthService {
         categories: true,
         transactions: true,
         recurringTransactions: true,
+        notifications: { omit: { dedupeKey: true } },
         budgets: true,
         savingsGoals: true,
       },

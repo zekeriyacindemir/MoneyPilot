@@ -8,5 +8,6 @@ import { BudgetService } from './budget.service';
   imports: [PrismaModule, DashboardModule],
   controllers: [BudgetController],
   providers: [BudgetService],
+  exports: [BudgetService],
 })
 export class BudgetModule {}

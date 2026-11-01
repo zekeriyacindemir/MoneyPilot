@@ -50,6 +50,14 @@ enum RecurrenceFrequency {
   YEARLY
 }
 
+enum NotificationType {
+  BUDGET_WARNING
+  BUDGET_EXCEEDED
+  GOAL_DEADLINE
+  GOAL_COMPLETED
+  WEEKLY_SUMMARY
+}
+
 enum Currency {
   TRY
   USD
@@ -77,6 +85,7 @@ model User {
   recurringTransactions    RecurringTransaction[]
   authSessions             AuthSession[]
   passwordResets           PasswordReset[]
+  notifications            Notification[]
 }
 
 model Category {
@@ -210,4 +219,22 @@ model PasswordReset {
 
   @@index([userId])
   @@index([expiresAt])
+}
+
+/// In-app notification, optionally also sent by email. dedupeKey makes each alert unique per user.
+model Notification {
+  id        String           @id @default(uuid()) @db.Uuid
+  userId    String           @db.Uuid
+  type      NotificationType
+  title     String           @db.VarChar(150)
+  body      String           @db.VarChar(500)
+  href      String?          @db.VarChar(200)
+  dedupeKey String           @db.VarChar(150)
+  readAt    DateTime?
+  emailedAt DateTime?
+  createdAt DateTime         @default(now())
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, dedupeKey])
+  @@index([userId, createdAt])
 }

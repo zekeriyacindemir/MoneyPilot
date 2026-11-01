@@ -6,6 +6,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useAuth } from '@/features/auth/auth-context';
 import { ThemeToggle } from '@/features/theme/theme-toggle';
 import { BrandLogo } from '@/features/brand/brand-logo';
+import { NotificationBell } from '@/features/notifications/notification-bell';
 import { Icon } from './components/icons';
 import { Avatar, IconButton } from './components/ui';
 import { dashboardNavigation, getDashboardNavigation } from './navigation';
@@ -128,9 +129,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             </div>
             <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
               <ThemeToggle />
-              <IconButton disabled label="Bildirimler yakında" title="Bildirimler yakında">
-                <Icon name="bell" className="size-5" />
-              </IconButton>
+              <NotificationBell />
               <div ref={userMenuReference} className="relative">
                 <button
                   type="button"
