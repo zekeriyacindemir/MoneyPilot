@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule, type JwtSignOptions } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import type { Environment } from '../config/environment.validation';
+import { MailModule } from '../mail/mail.module';
 import { AuthThrottleGuard } from './guards/auth-throttle.guard';
 import { PasswordMailer } from './password-mailer.service';
 import { PasswordRecoveryService } from './password-recovery.service';
@@ -13,6 +14,7 @@ import { JwtAccessStrategy } from './strategies/jwt-access.strategy';
 @Module({
   imports: [
     ConfigModule,
+    MailModule,
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
