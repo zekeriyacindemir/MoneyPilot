@@ -7,7 +7,10 @@ import {
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 
-/** Per-process protection. Multi-replica deployments also need a shared edge limit. */
+/**
+ * Per-process protection keyed by client IP (set TRUST_PROXY behind a reverse proxy, otherwise all
+ * clients share the proxy IP). Multi-replica deployments also need a shared limit at the proxy.
+ */
 @Injectable()
 export class AuthThrottleGuard implements CanActivate {
   private readonly windows = new Map<string, { count: number; until: number }>();

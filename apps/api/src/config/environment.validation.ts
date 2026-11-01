@@ -16,12 +16,18 @@ const environmentSchema = z.object({
   SMTP_PASSWORD: z.string().optional(),
   SMTP_FROM: z.string().email().optional(),
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+  // Number of reverse proxies in front of the API whose X-Forwarded-For entries are trusted.
+  TRUST_PROXY: z.coerce.number().int().min(0).max(10).default(0),
 });
 
 export type Environment = z.infer<typeof environmentSchema>;
 
 export function validateEnvironment(configuration: Record<string, unknown>): Environment {
-  const result = environmentSchema.safeParse(configuration);
+  // Treat empty values (e.g. `SMTP_FROM=` or unset compose variables) as not configured.
+  const provided = Object.fromEntries(
+    Object.entries(configuration).filter(([, value]) => value !== ''),
+  );
+  const result = environmentSchema.safeParse(provided);
 
   if (!result.success) {
     throw new Error(`Invalid environment configuration: ${result.error.message}`);
