@@ -160,14 +160,17 @@ export function TransactionFormModal({ onClose, transaction }: TransactionFormMo
         role="dialog"
         aria-modal="true"
         aria-labelledby="transaction-form-title"
-        className="max-h-[calc(100vh-2rem)] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl shadow-slate-950/20 sm:p-6"
+        className="max-h-[calc(100vh-2rem)] w-full max-w-2xl overflow-y-auto rounded-2xl bg-[var(--card)] p-5 shadow-2xl shadow-slate-950/20 sm:p-6"
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 id="transaction-form-title" className="text-lg font-semibold text-slate-950">
+            <h2
+              id="transaction-form-title"
+              className="text-lg font-semibold text-[var(--foreground)]"
+            >
               {isEdit ? 'İşlemi düzenle' : 'Yeni işlem'}
             </h2>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-[var(--muted-foreground)]">
               Gelir veya gider kaydınızın ayrıntılarını girin.
             </p>
           </div>
@@ -175,7 +178,7 @@ export function TransactionFormModal({ onClose, transaction }: TransactionFormMo
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="rounded-lg px-2 py-1 text-sm font-semibold text-slate-500 transition hover:bg-slate-100 hover:text-slate-950 disabled:opacity-50"
+            className="rounded-lg px-2 py-1 text-sm font-semibold text-[var(--muted-foreground)] transition hover:bg-[var(--muted)] hover:text-[var(--foreground)] disabled:opacity-50"
           >
             Kapat
           </button>
@@ -212,7 +215,7 @@ export function TransactionFormModal({ onClose, transaction }: TransactionFormMo
                 ))}
               </select>
               {categoriesQuery.isError ? (
-                <p className="mt-1.5 text-xs font-medium text-rose-700">
+                <p className="mt-1.5 text-xs font-medium text-[var(--destructive)]">
                   Kategoriler yüklenemedi. Form verileriniz korunuyor; tekrar deneyin.
                 </p>
               ) : null}
@@ -283,7 +286,7 @@ export function TransactionFormModal({ onClose, transaction }: TransactionFormMo
           {formError ? (
             <p
               role="alert"
-              className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2.5 text-sm font-medium text-rose-800"
+              className="rounded-xl border border-[var(--destructive)]/30 bg-[var(--destructive)]/10 px-3 py-2.5 text-sm font-medium text-[var(--destructive)]"
             >
               {formError}
             </p>
@@ -293,14 +296,14 @@ export function TransactionFormModal({ onClose, transaction }: TransactionFormMo
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:opacity-50"
+              className="rounded-xl px-4 py-2.5 text-sm font-semibold text-[var(--muted-foreground)] transition hover:bg-[var(--muted)] disabled:opacity-50"
             >
               Vazgeç
             </button>
             <button
               type="submit"
               disabled={isSubmitting || categoriesQuery.isLoading || categoriesQuery.isError}
-              className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-xl bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-[var(--primary-foreground)] transition hover:bg-[var(--primary)]/90 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSubmitting ? 'Kaydediliyor…' : isEdit ? 'Değişiklikleri kaydet' : 'İşlemi kaydet'}
             </button>
@@ -335,7 +338,7 @@ function createUpdateRequest(
 
 function Field({ children, label }: { children: ReactNode; label: string }) {
   return (
-    <label className="block text-sm font-medium text-slate-700">
+    <label className="block text-sm font-medium text-[var(--muted-foreground)]">
       <span className="mb-1.5 block">{label}</span>
       {children}
     </label>
@@ -343,4 +346,4 @@ function Field({ children, label }: { children: ReactNode; label: string }) {
 }
 
 const inputClassName =
-  'h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500';
+  'h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--card)] px-3 text-sm text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted-foreground)] focus:border-[var(--ring)] focus:ring-4 focus:ring-[var(--secondary)] disabled:cursor-not-allowed disabled:bg-[var(--muted)] disabled:text-[var(--muted-foreground)]';

@@ -13,7 +13,7 @@ const periodLabels: Record<BudgetPeriod, string> = {
   YEARLY: 'Yıllık',
 };
 const input =
-  'h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100';
+  'h-11 rounded-xl border border-[var(--border)] bg-[var(--card)] px-3 text-sm text-[var(--muted-foreground)] outline-none focus:border-[var(--ring)] focus:ring-4 focus:ring-[var(--secondary)]';
 const today = () => new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Istanbul' });
 const formatAmount = (value: string, currency: string) =>
   `${new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 4 }).format(Number(value))} ${currency}`;
@@ -65,7 +65,7 @@ export function BudgetsPageClient() {
           <button
             type="button"
             onClick={openNew}
-            className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-700"
+            className="rounded-xl bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-[var(--primary-foreground)] hover:bg-[var(--primary)]/90"
           >
             + Yeni bütçe
           </button>
@@ -96,7 +96,7 @@ export function BudgetsPageClient() {
       {actionError ? (
         <p
           role="alert"
-          className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800"
+          className="rounded-xl border border-[var(--destructive)]/30 bg-[var(--destructive)]/10 px-4 py-3 text-sm text-[var(--destructive)]"
         >
           {actionError}
         </p>
@@ -105,19 +105,21 @@ export function BudgetsPageClient() {
         <DashboardCard className="p-5">
           <div className="space-y-4 animate-pulse">
             {Array.from({ length: 5 }, (_, i) => (
-              <div key={i} className="h-16 rounded bg-slate-100" />
+              <div key={i} className="h-16 rounded bg-[var(--muted)]" />
             ))}
           </div>
         </DashboardCard>
       ) : null}
       {budgetsQuery.isError ? (
         <DashboardCard className="p-6">
-          <p className="font-semibold text-slate-950">Bütçeler yüklenemedi</p>
-          <p className="mt-1 text-sm text-slate-500">{errorMessage(budgetsQuery.error)}</p>
+          <p className="font-semibold text-[var(--foreground)]">Bütçeler yüklenemedi</p>
+          <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+            {errorMessage(budgetsQuery.error)}
+          </p>
           <button
             type="button"
             onClick={() => void budgetsQuery.refetch()}
-            className="mt-4 rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white"
+            className="mt-4 rounded-xl bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-[var(--primary-foreground)]"
           >
             Tekrar dene
           </button>
@@ -132,7 +134,7 @@ export function BudgetsPageClient() {
             <button
               type="button"
               onClick={openNew}
-              className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white"
+              className="rounded-xl bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-[var(--primary-foreground)]"
             >
               Yeni bütçe ekle
             </button>
@@ -157,24 +159,24 @@ export function BudgetsPageClient() {
           <div
             role="dialog"
             aria-modal="true"
-            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
+            className="w-full max-w-md rounded-2xl bg-[var(--card)] p-6 shadow-2xl"
           >
-            <h2 className="text-lg font-semibold text-slate-950">Bütçe silinsin mi?</h2>
-            <p className="mt-2 text-sm text-slate-600">
+            <h2 className="text-lg font-semibold text-[var(--foreground)]">Bütçe silinsin mi?</h2>
+            <p className="mt-2 text-sm text-[var(--muted-foreground)]">
               {deleting.category.name} bütçesi silinecek. Bu işlem geri alınamaz.
             </p>
             <div className="mt-6 flex justify-end gap-3">
               <button
                 disabled={remove.isPending}
                 onClick={() => setDeleting(null)}
-                className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+                className="rounded-xl px-4 py-2.5 text-sm font-semibold text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
               >
                 Vazgeç
               </button>
               <button
                 disabled={remove.isPending}
                 onClick={() => void deleteBudget()}
-                className="rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+                className="rounded-xl bg-[var(--destructive)] px-4 py-2.5 text-sm font-semibold text-[var(--destructive-foreground)] disabled:opacity-60"
               >
                 {remove.isPending ? 'Siliniyor…' : 'Sil'}
               </button>
@@ -199,7 +201,7 @@ function BudgetList({
     <DashboardCard className="overflow-hidden">
       <div className="hidden overflow-x-auto lg:block">
         <table className="w-full min-w-[900px] text-left">
-          <thead className="border-b border-slate-100 bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <thead className="border-b border-[var(--border)] bg-[var(--card)] text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
             <tr>
               <th className="px-5 py-3.5">Kategori</th>
               <th className="px-5 py-3.5">Dönem</th>
@@ -210,20 +212,20 @@ function BudgetList({
               <th />
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-[var(--border)]">
             {budgets.map((item) => (
               <tr key={item.id} className="text-sm">
-                <td className="px-5 py-4 font-semibold text-slate-900">
+                <td className="px-5 py-4 font-semibold text-[var(--foreground)]">
                   <span
                     className="mr-2 inline-block size-2.5 rounded-full"
                     style={{ backgroundColor: item.category.color ?? '#94a3b8' }}
                   />
                   {item.category.name}
-                  <p className="mt-1 text-xs font-medium text-slate-500">
+                  <p className="mt-1 text-xs font-medium text-[var(--muted-foreground)]">
                     {item.type === 'INCOME' ? 'Gelir hedefi' : 'Gider limiti'}
                   </p>
                 </td>
-                <td className="px-5 py-4 text-slate-600">
+                <td className="px-5 py-4 text-[var(--muted-foreground)]">
                   {periodLabels[item.period]}
                   <p className="mt-1 text-xs">
                     {formatDate(item.periodStart)} – {formatDate(item.periodEnd)}
@@ -236,7 +238,7 @@ function BudgetList({
                   {formatAmount(item.actualAmount, item.currency)}
                 </td>
                 <td
-                  className={`px-5 py-4 font-semibold tabular-nums ${Number(item.remainingAmount) < 0 ? 'text-rose-700' : ''}`}
+                  className={`px-5 py-4 font-semibold tabular-nums ${Number(item.remainingAmount) < 0 ? 'text-[var(--destructive)]' : ''}`}
                 >
                   {formatAmount(item.remainingAmount, item.currency)}
                 </td>
@@ -246,13 +248,13 @@ function BudgetList({
                 <td className="px-5 py-4 whitespace-nowrap text-right">
                   <button
                     onClick={() => onEdit(item)}
-                    className="mr-2 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-50"
+                    className="mr-2 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[var(--secondary-foreground)] hover:bg-[var(--secondary)]"
                   >
                     Düzenle
                   </button>
                   <button
                     onClick={() => onDelete(item)}
-                    className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-rose-700 hover:bg-rose-50"
+                    className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[var(--destructive)] hover:bg-[var(--destructive)]/10"
                   >
                     Sil
                   </button>
@@ -262,13 +264,13 @@ function BudgetList({
           </tbody>
         </table>
       </div>
-      <div className="divide-y divide-slate-100 lg:hidden">
+      <div className="divide-y divide-[var(--border)] lg:hidden">
         {budgets.map((item) => (
           <article key={item.id} className="p-4">
             <div className="flex justify-between gap-3">
               <div>
-                <p className="font-semibold text-slate-950">{item.category.name}</p>
-                <p className="mt-1 text-xs text-slate-500">
+                <p className="font-semibold text-[var(--foreground)]">{item.category.name}</p>
+                <p className="mt-1 text-xs text-[var(--muted-foreground)]">
                   {periodLabels[item.period]} · {formatDate(item.periodStart)} –{' '}
                   {formatDate(item.periodEnd)}
                 </p>
@@ -278,26 +280,26 @@ function BudgetList({
             <div className="mt-4">
               <Progress item={item} />
             </div>
-            <p className="mt-3 text-sm text-slate-600">
+            <p className="mt-3 text-sm text-[var(--muted-foreground)]">
               Gerçekleşen:{' '}
-              <span className="font-semibold text-slate-900">
+              <span className="font-semibold text-[var(--foreground)]">
                 {formatAmount(item.actualAmount, item.currency)}
               </span>{' '}
               · Kalan:{' '}
-              <span className="font-semibold text-slate-900">
+              <span className="font-semibold text-[var(--foreground)]">
                 {formatAmount(item.remainingAmount, item.currency)}
               </span>
             </p>
             <div className="mt-4 flex justify-end gap-2">
               <button
                 onClick={() => onEdit(item)}
-                className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-50"
+                className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[var(--secondary-foreground)] hover:bg-[var(--secondary)]"
               >
                 Düzenle
               </button>
               <button
                 onClick={() => onDelete(item)}
-                className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-rose-700 hover:bg-rose-50"
+                className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[var(--destructive)] hover:bg-[var(--destructive)]/10"
               >
                 Sil
               </button>
@@ -313,9 +315,9 @@ function Progress({ item }: { item: Budget }) {
   const complete = item.type === 'INCOME' ? progress >= 100 : progress > 100;
   const colour = complete
     ? item.type === 'INCOME'
-      ? 'bg-emerald-500'
-      : 'bg-rose-500'
-    : 'bg-blue-500';
+      ? 'bg-[var(--success)]'
+      : 'bg-[var(--destructive)]'
+    : 'bg-[var(--primary)]';
   const label = complete
     ? item.type === 'INCOME'
       ? 'Hedefe ulaşıldı'
@@ -323,14 +325,14 @@ function Progress({ item }: { item: Budget }) {
     : `%${progress.toLocaleString('tr-TR', { maximumFractionDigits: 2 })}`;
   return (
     <div className="min-w-32">
-      <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+      <div className="h-2 overflow-hidden rounded-full bg-[var(--muted)]">
         <div
           className={`h-full rounded-full ${colour}`}
           style={{ width: `${Math.min(progress, 100)}%` }}
         />
       </div>
       <p
-        className={`mt-1 text-xs font-semibold ${complete ? (item.type === 'INCOME' ? 'text-emerald-700' : 'text-rose-700') : 'text-slate-600'}`}
+        className={`mt-1 text-xs font-semibold ${complete ? (item.type === 'INCOME' ? 'text-[var(--success)]' : 'text-[var(--destructive)]') : 'text-[var(--muted-foreground)]'}`}
       >
         {label}
       </p>

@@ -112,7 +112,7 @@ export function TransactionsPageClient() {
           <button
             type="button"
             onClick={openCreateForm}
-            className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-700"
+            className="rounded-xl bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-[var(--primary-foreground)] transition hover:bg-[var(--primary)]/90"
           >
             + Yeni işlem
           </button>
@@ -214,19 +214,19 @@ export function TransactionsPageClient() {
                 resetPage();
               }}
               aria-label="Sıralama yönünü değiştir"
-              className="h-11 rounded-xl border border-slate-200 px-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+              className="h-11 rounded-xl border border-[var(--border)] px-3 text-sm font-semibold text-[var(--muted-foreground)] transition hover:bg-[var(--muted)]"
             >
               {sortOrder === 'asc' ? 'Artan' : 'Azalan'}
             </button>
           </div>
         </div>
         {hasInvalidDateRange ? (
-          <p role="alert" className="mt-3 text-sm font-medium text-rose-700">
+          <p role="alert" className="mt-3 text-sm font-medium text-[var(--destructive)]">
             Başlangıç tarihi bitiş tarihinden sonra olamaz. Bu filtre API’ye gönderilmedi.
           </p>
         ) : null}
         {categoriesQuery.isError ? (
-          <p role="alert" className="mt-3 text-sm font-medium text-rose-700">
+          <p role="alert" className="mt-3 text-sm font-medium text-[var(--destructive)]">
             Kategori filtresi yüklenemedi. Lütfen sayfayı yenileyip tekrar deneyin.
           </p>
         ) : null}
@@ -234,7 +234,7 @@ export function TransactionsPageClient() {
       {actionError ? (
         <div
           role="alert"
-          className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800"
+          className="rounded-xl border border-[var(--destructive)]/30 bg-[var(--destructive)]/10 px-4 py-3 text-sm text-[var(--destructive)]"
         >
           {actionError}
         </div>
@@ -242,14 +242,14 @@ export function TransactionsPageClient() {
       {transactionsQuery.isLoading ? <TransactionListSkeleton /> : null}
       {transactionsQuery.isError ? (
         <DashboardCard className="p-6">
-          <p className="text-sm font-semibold text-slate-900">İşlemler yüklenemedi</p>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="text-sm font-semibold text-[var(--foreground)]">İşlemler yüklenemedi</p>
+          <p className="mt-1 text-sm text-[var(--muted-foreground)]">
             {getErrorMessage(transactionsQuery.error, 'Bağlantınızı kontrol edip tekrar deneyin.')}
           </p>
           <button
             type="button"
             onClick={() => void transactionsQuery.refetch()}
-            className="mt-4 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-700"
+            className="mt-4 rounded-xl bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-[var(--primary-foreground)] transition hover:bg-[var(--primary)]/90"
           >
             Tekrar dene
           </button>
@@ -264,7 +264,7 @@ export function TransactionsPageClient() {
             <button
               type="button"
               onClick={openCreateForm}
-              className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-700"
+              className="rounded-xl bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-[var(--primary-foreground)] transition hover:bg-[var(--primary)]/90"
             >
               Yeni işlem ekle
             </button>
@@ -320,7 +320,7 @@ function TransactionList({
     <DashboardCard className="overflow-hidden">
       <div className="hidden overflow-x-auto lg:block">
         <table className="w-full min-w-[1000px] text-left">
-          <thead className="border-b border-slate-100 bg-slate-50/80 text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <thead className="border-b border-[var(--border)] bg-[var(--muted)]/60 text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
             <tr>
               <th className="px-5 py-3.5">Kategori</th>
               <th className="px-5 py-3.5">Tür</th>
@@ -331,7 +331,7 @@ function TransactionList({
               <th className="px-5 py-3.5 text-right">İşlemler</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-[var(--border)]">
             {transactions.map((transaction) => (
               <TransactionTableRow
                 key={transaction.id}
@@ -343,7 +343,7 @@ function TransactionList({
           </tbody>
         </table>
       </div>
-      <div className="divide-y divide-slate-100 lg:hidden">
+      <div className="divide-y divide-[var(--border)] lg:hidden">
         {transactions.map((transaction) => (
           <TransactionMobileCard
             key={transaction.id}
@@ -366,8 +366,8 @@ function TransactionTableRow({
   transaction: Transaction;
 }) {
   return (
-    <tr className="text-sm text-slate-600">
-      <td className="px-5 py-4 font-medium text-slate-900">
+    <tr className="text-sm text-[var(--muted-foreground)]">
+      <td className="px-5 py-4 font-medium text-[var(--foreground)]">
         <span
           className="mr-2 inline-block size-2.5 rounded-full"
           style={{ backgroundColor: transaction.category.color ?? '#94a3b8' }}
@@ -378,7 +378,7 @@ function TransactionTableRow({
       <td className="px-5 py-4">
         <TypeBadge type={transaction.type} />
       </td>
-      <td className="px-5 py-4 font-semibold tabular-nums text-slate-900">
+      <td className="px-5 py-4 font-semibold tabular-nums text-[var(--foreground)]">
         {formatAmount(transaction.amount, transaction.currency)}
       </td>
       <td className="px-5 py-4">
@@ -392,14 +392,14 @@ function TransactionTableRow({
         <button
           type="button"
           onClick={() => onEdit(transaction)}
-          className="mr-2 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-blue-700 transition hover:bg-blue-50"
+          className="mr-2 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[var(--secondary-foreground)] transition hover:bg-[var(--secondary)]"
         >
           Düzenle
         </button>
         <button
           type="button"
           onClick={() => onDelete(transaction)}
-          className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-rose-700 transition hover:bg-rose-50"
+          className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[var(--destructive)] transition hover:bg-[var(--destructive)]/10"
         >
           Sil
         </button>
@@ -420,41 +420,45 @@ function TransactionMobileCard({
     <article className="p-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="font-semibold text-slate-900">
+          <p className="font-semibold text-[var(--foreground)]">
             <span
               className="mr-2 inline-block size-2.5 rounded-full"
               style={{ backgroundColor: transaction.category.color ?? '#94a3b8' }}
             />
             {transaction.category.name}
           </p>
-          <p className="mt-1 text-xs text-slate-500">{formatDate(transaction.occurredAt)}</p>
+          <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+            {formatDate(transaction.occurredAt)}
+          </p>
         </div>
-        <p className="font-semibold tabular-nums text-slate-950">
+        <p className="font-semibold tabular-nums text-[var(--foreground)]">
           {formatAmount(transaction.amount, transaction.currency)}
         </p>
       </div>
       <div className="mt-3 flex flex-wrap gap-2 text-xs">
         <TypeBadge type={transaction.type} />
         {transaction.recurringTransactionId ? <RecurringBadge /> : null}
-        <span className="rounded-full bg-slate-100 px-2.5 py-1 font-medium text-slate-600">
+        <span className="rounded-full bg-[var(--muted)] px-2.5 py-1 font-medium text-[var(--muted-foreground)]">
           {transaction.paymentMethod
             ? paymentMethodLabels[transaction.paymentMethod]
             : 'Ödeme yöntemi yok'}
         </span>
       </div>
-      {transaction.note ? <p className="mt-3 text-sm text-slate-600">{transaction.note}</p> : null}
+      {transaction.note ? (
+        <p className="mt-3 text-sm text-[var(--muted-foreground)]">{transaction.note}</p>
+      ) : null}
       <div className="mt-4 flex justify-end gap-2">
         <button
           type="button"
           onClick={() => onEdit(transaction)}
-          className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-blue-700 transition hover:bg-blue-50"
+          className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[var(--secondary-foreground)] transition hover:bg-[var(--secondary)]"
         >
           Düzenle
         </button>
         <button
           type="button"
           onClick={() => onDelete(transaction)}
-          className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-rose-700 transition hover:bg-rose-50"
+          className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[var(--destructive)] transition hover:bg-[var(--destructive)]/10"
         >
           Sil
         </button>
@@ -475,7 +479,7 @@ function RecurringBadge() {
 function TypeBadge({ type }: { type: TransactionType }) {
   return (
     <span
-      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${type === 'INCOME' ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}`}
+      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${type === 'INCOME' ? 'bg-[var(--success-muted)] text-[var(--success)]' : 'bg-[var(--destructive)]/10 text-[var(--destructive)]'}`}
     >
       {typeLabels[type]}
     </span>
@@ -494,7 +498,7 @@ function Pagination({
 }) {
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <p className="text-sm text-slate-500">
+      <p className="text-sm text-[var(--muted-foreground)]">
         Toplam {total} işlem · Sayfa {page}/{totalPages || 1}
       </p>
       <div className="flex gap-2">
@@ -502,7 +506,7 @@ function Pagination({
           type="button"
           disabled={page <= 1}
           onClick={() => onPageChange(page - 1)}
-          className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-45"
+          className="rounded-xl border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-sm font-semibold text-[var(--muted-foreground)] transition hover:bg-[var(--muted)] disabled:cursor-not-allowed disabled:opacity-45"
         >
           Önceki
         </button>
@@ -510,7 +514,7 @@ function Pagination({
           type="button"
           disabled={page >= totalPages}
           onClick={() => onPageChange(page + 1)}
-          className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-45"
+          className="rounded-xl border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-sm font-semibold text-[var(--muted-foreground)] transition hover:bg-[var(--muted)] disabled:cursor-not-allowed disabled:opacity-45"
         >
           Sonraki
         </button>
@@ -525,11 +529,11 @@ function TransactionListSkeleton() {
         {Array.from({ length: 6 }, (_, index) => (
           <div
             key={index}
-            className="flex items-center justify-between gap-6 border-b border-slate-100 pb-4 last:border-0"
+            className="flex items-center justify-between gap-6 border-b border-[var(--border)] pb-4 last:border-0"
           >
-            <div className="h-5 w-36 rounded bg-slate-100" />
-            <div className="h-5 w-24 rounded bg-slate-100" />
-            <div className="h-5 w-20 rounded bg-slate-100" />
+            <div className="h-5 w-36 rounded bg-[var(--muted)]" />
+            <div className="h-5 w-24 rounded bg-[var(--muted)]" />
+            <div className="h-5 w-20 rounded bg-[var(--muted)]" />
           </div>
         ))}
       </div>
@@ -537,4 +541,4 @@ function TransactionListSkeleton() {
   );
 }
 const inputClassName =
-  'h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-50';
+  'h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--card)] px-3 text-sm text-[var(--muted-foreground)] outline-none focus:border-[var(--ring)] focus:ring-4 focus:ring-[var(--secondary)] disabled:cursor-not-allowed disabled:bg-[var(--muted)]';

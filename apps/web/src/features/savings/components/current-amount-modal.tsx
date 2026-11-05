@@ -38,16 +38,16 @@ export function CurrentAmountModal({ goal, onClose }: { goal: SavingsGoal; onClo
         role="dialog"
         aria-modal="true"
         aria-labelledby="amount-title"
-        className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl sm:p-6"
+        className="w-full max-w-md rounded-2xl bg-[var(--card)] p-5 shadow-2xl sm:p-6"
       >
-        <h2 id="amount-title" className="text-lg font-semibold text-slate-950">
+        <h2 id="amount-title" className="text-lg font-semibold text-[var(--foreground)]">
           Birimi güncelle
         </h2>
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-[var(--muted-foreground)]">
           {goal.name} için mevcut toplam birikimi girin.
         </p>
         <form onSubmit={(event) => void submit(event)} className="mt-6">
-          <label className="block text-sm font-medium text-slate-700">
+          <label className="block text-sm font-medium text-[var(--muted-foreground)]">
             <span className="mb-1.5 block">Mevcut birikim ({goal.currency})</span>
             <input
               autoFocus
@@ -56,13 +56,13 @@ export function CurrentAmountModal({ goal, onClose }: { goal: SavingsGoal; onClo
               value={amount}
               disabled={update.isPending}
               onChange={(e) => setAmount(e.target.value)}
-              className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+              className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--card)] px-3 text-sm text-[var(--foreground)] outline-none focus:border-[var(--ring)] focus:ring-4 focus:ring-[var(--secondary)]"
             />
           </label>
           {error ? (
             <p
               role="alert"
-              className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2.5 text-sm text-rose-800"
+              className="mt-4 rounded-xl border border-[var(--destructive)]/30 bg-[var(--destructive)]/10 px-3 py-2.5 text-sm text-[var(--destructive)]"
             >
               {error}
             </p>
@@ -72,14 +72,14 @@ export function CurrentAmountModal({ goal, onClose }: { goal: SavingsGoal; onClo
               type="button"
               onClick={onClose}
               disabled={update.isPending}
-              className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+              className="rounded-xl px-4 py-2.5 text-sm font-semibold text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
             >
               Vazgeç
             </button>
             <button
               type="submit"
               disabled={update.isPending}
-              className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+              className="rounded-xl bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-[var(--primary-foreground)] disabled:opacity-60"
             >
               {update.isPending ? 'Güncelleniyor…' : 'Güncelle'}
             </button>

@@ -132,83 +132,20 @@ textarea {
   }
 }
 
-/* Semantic compatibility layer for feature pages. */
-main input,
-main select,
-main textarea {
-  border-color: var(--input) !important;
-  background: color-mix(in srgb, var(--card) 88%, var(--background)) !important;
-  color: var(--foreground) !important;
-}
-main .bg-white,
-main .bg-slate-50 {
-  background-color: var(--card) !important;
-}
-main .bg-slate-100 {
-  background-color: var(--muted) !important;
-}
-main .border-slate-100,
-main .border-slate-200 {
-  border-color: var(--border) !important;
-}
-main .text-slate-950,
-main .text-slate-900,
-main .text-slate-800 {
-  color: var(--foreground) !important;
-}
-main .text-slate-700,
-main .text-slate-600,
-main .text-slate-500,
-main .text-slate-400 {
-  color: var(--muted-foreground) !important;
-}
-main .bg-slate-950,
-main .bg-slate-900 {
-  background: var(--primary) !important;
-}
-main .bg-slate-950.text-white,
-main .bg-slate-900.text-white {
-  color: var(--primary-foreground) !important;
-}
-main .bg-blue-50 {
-  background-color: var(--secondary) !important;
-}
-main .text-blue-700 {
-  color: var(--secondary-foreground) !important;
-}
-main .bg-emerald-50 {
-  background-color: var(--success-muted) !important;
-}
-main .text-emerald-700 {
-  color: var(--success) !important;
-}
-main .bg-amber-50 {
-  background-color: var(--warning-muted) !important;
-}
-main .text-amber-700 {
-  color: var(--warning) !important;
-}
-main .bg-rose-50 {
-  background-color: color-mix(in srgb, var(--destructive) 12%, var(--card)) !important;
-}
-main .text-rose-700,
-main .text-rose-800,
-main .text-red-600,
-main .text-red-700 {
-  color: var(--destructive) !important;
-}
-main .focus\:border-blue-500:focus {
-  border-color: var(--ring) !important;
-}
-main .focus\:ring-blue-100:focus {
-  --tw-ring-color: var(--secondary) !important;
+/* Form controls default to theme colors; utility classes still override them. */
+@layer base {
+  input,
+  select,
+  textarea {
+    border-color: var(--input);
+    background-color: color-mix(in srgb, var(--card) 88%, var(--background));
+    color: var(--foreground);
+  }
 }
 main [role='dialog'] {
   max-height: calc(100dvh - 2rem);
   overflow-y: auto;
-  background: var(--card) !important;
-  color: var(--card-foreground) !important;
-  box-shadow: 0 24px 70px rgb(1 7 26 / 0.36) !important;
+  color: var(--card-foreground);
 }
 main [role='dialog'] form > div:last-child {
   position: sticky;

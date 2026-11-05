@@ -15,7 +15,7 @@ interface Values {
   targetDate: string;
 }
 const input =
-  'h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-50';
+  'h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--card)] px-3 text-sm text-[var(--foreground)] outline-none focus:border-[var(--ring)] focus:ring-4 focus:ring-[var(--secondary)] disabled:cursor-not-allowed disabled:bg-[var(--muted)]';
 const amountPattern = /^(?=.*[1-9])(?:0|[1-9]\d{0,14})(?:\.\d{1,4})?$/;
 function initial(goal?: SavingsGoal, defaultCurrency: Currency = 'TRY'): Values {
   return goal
@@ -85,14 +85,14 @@ export function SavingsGoalFormModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="savings-form-title"
-        className="w-full max-w-xl rounded-2xl bg-white p-5 shadow-2xl sm:p-6"
+        className="w-full max-w-xl rounded-2xl bg-[var(--card)] p-5 shadow-2xl sm:p-6"
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 id="savings-form-title" className="text-lg font-semibold text-slate-950">
+            <h2 id="savings-form-title" className="text-lg font-semibold text-[var(--foreground)]">
               {goal ? 'Hedefi düzenle' : 'Yeni birikim hedefi'}
             </h2>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-[var(--muted-foreground)]">
               Hedef tutarınızı ve önceliğinizi belirleyin.
             </p>
           </div>
@@ -100,7 +100,7 @@ export function SavingsGoalFormModal({
             type="button"
             onClick={onClose}
             disabled={submitting}
-            className="rounded-lg px-2 py-1 text-sm font-semibold text-slate-500 hover:bg-slate-100"
+            className="rounded-lg px-2 py-1 text-sm font-semibold text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
           >
             Kapat
           </button>
@@ -165,7 +165,7 @@ export function SavingsGoalFormModal({
           {error ? (
             <p
               role="alert"
-              className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2.5 text-sm text-rose-800"
+              className="rounded-xl border border-[var(--destructive)]/30 bg-[var(--destructive)]/10 px-3 py-2.5 text-sm text-[var(--destructive)]"
             >
               {error}
             </p>
@@ -175,14 +175,14 @@ export function SavingsGoalFormModal({
               type="button"
               disabled={submitting}
               onClick={onClose}
-              className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+              className="rounded-xl px-4 py-2.5 text-sm font-semibold text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
             >
               Vazgeç
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+              className="rounded-xl bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-[var(--primary-foreground)] disabled:opacity-60"
             >
               {submitting ? 'Kaydediliyor…' : 'Kaydet'}
             </button>
@@ -194,7 +194,7 @@ export function SavingsGoalFormModal({
 }
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <label className="block text-sm font-medium text-slate-700">
+    <label className="block text-sm font-medium text-[var(--muted-foreground)]">
       <span className="mb-1.5 block">{label}</span>
       {children}
     </label>

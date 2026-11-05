@@ -19,7 +19,7 @@ interface Values {
   date: string;
 }
 const input =
-  'h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-50';
+  'h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--card)] px-3 text-sm text-[var(--foreground)] outline-none focus:border-[var(--ring)] focus:ring-4 focus:ring-[var(--secondary)] disabled:cursor-not-allowed disabled:bg-[var(--muted)]';
 function initial(budget?: Budget, defaultCurrency: Currency = 'TRY'): Values {
   return budget
     ? {
@@ -95,20 +95,22 @@ export function BudgetFormModal({ budget, onClose }: Props) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="budget-form-title"
-        className="w-full max-w-xl rounded-2xl bg-white p-5 shadow-2xl sm:p-6"
+        className="w-full max-w-xl rounded-2xl bg-[var(--card)] p-5 shadow-2xl sm:p-6"
       >
         <div className="flex items-start justify-between">
           <div>
-            <h2 id="budget-form-title" className="text-lg font-semibold text-slate-950">
+            <h2 id="budget-form-title" className="text-lg font-semibold text-[var(--foreground)]">
               {budget ? 'Bütçeyi düzenle' : 'Yeni bütçe'}
             </h2>
-            <p className="mt-1 text-sm text-slate-500">Gelir hedefi veya gider limiti oluşturun.</p>
+            <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+              Gelir hedefi veya gider limiti oluşturun.
+            </p>
           </div>
           <button
             type="button"
             disabled={submitting}
             onClick={onClose}
-            className="rounded-lg px-2 py-1 text-sm font-semibold text-slate-500 hover:bg-slate-100"
+            className="rounded-lg px-2 py-1 text-sm font-semibold text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
           >
             Kapat
           </button>
@@ -142,7 +144,7 @@ export function BudgetFormModal({ budget, onClose }: Props) {
                 ))}
               </select>
               {categories.isError ? (
-                <p className="mt-1 text-xs text-rose-700">
+                <p className="mt-1 text-xs text-[var(--destructive)]">
                   Kategoriler yüklenemedi; formunuz korunuyor.
                 </p>
               ) : null}
@@ -196,7 +198,7 @@ export function BudgetFormModal({ budget, onClose }: Props) {
           {error ? (
             <p
               role="alert"
-              className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2.5 text-sm text-rose-800"
+              className="rounded-xl border border-[var(--destructive)]/30 bg-[var(--destructive)]/10 px-3 py-2.5 text-sm text-[var(--destructive)]"
             >
               {error}
             </p>
@@ -206,14 +208,14 @@ export function BudgetFormModal({ budget, onClose }: Props) {
               type="button"
               disabled={submitting}
               onClick={onClose}
-              className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+              className="rounded-xl px-4 py-2.5 text-sm font-semibold text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
             >
               Vazgeç
             </button>
             <button
               type="submit"
               disabled={submitting || categories.isLoading || categories.isError}
-              className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+              className="rounded-xl bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-[var(--primary-foreground)] disabled:opacity-60"
             >
               {submitting ? 'Kaydediliyor…' : 'Kaydet'}
             </button>
@@ -225,7 +227,7 @@ export function BudgetFormModal({ budget, onClose }: Props) {
 }
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <label className="block text-sm font-medium text-slate-700">
+    <label className="block text-sm font-medium text-[var(--muted-foreground)]">
       <span className="mb-1.5 block">{label}</span>
       {children}
     </label>

@@ -285,7 +285,7 @@ export default function SettingsPage() {
               action={
                 <button
                   onClick={() => void endAll()}
-                  className="text-sm font-semibold text-red-600"
+                  className="text-sm font-semibold text-[var(--destructive)]"
                 >
                   Tümünü sonlandır
                 </button>
@@ -308,7 +308,7 @@ export default function SettingsPage() {
                               .mutateAsync(session.id)
                               .catch((error) => setNotice(errorMessage(error)));
                         }}
-                        className="text-sm font-semibold text-red-600"
+                        className="text-sm font-semibold text-[var(--destructive)]"
                       >
                         Sonlandır
                       </button>
@@ -427,7 +427,7 @@ export default function SettingsPage() {
               ))}
             </div>
           </DashboardCard>
-          <DashboardCard className="border-red-200 p-5 sm:p-6">
+          <DashboardCard className="border-[var(--destructive)]/30 p-5 sm:p-6">
             <SectionHeader
               title="Tehlikeli alan"
               description="Hesabınızı ve tüm finansal kayıtlarınızı kalıcı olarak silin."
@@ -435,7 +435,7 @@ export default function SettingsPage() {
             <button
               type="button"
               onClick={() => setIsDeleteDialogOpen(true)}
-              className="mt-5 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700"
+              className="mt-5 rounded-xl bg-[var(--destructive)] px-4 py-2.5 text-sm font-semibold text-[var(--destructive-foreground)] hover:bg-[var(--destructive)]/90"
             >
               Hesabı sil
             </button>
@@ -526,7 +526,7 @@ function DeleteAccountDialog({
             <button
               type="submit"
               disabled={isPending}
-              className="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+              className="rounded-xl bg-[var(--destructive)] px-4 py-2.5 text-sm font-semibold text-[var(--destructive-foreground)] disabled:opacity-60"
             >
               {isPending ? 'Siliniyor…' : 'Hesabı kalıcı olarak sil'}
             </button>
