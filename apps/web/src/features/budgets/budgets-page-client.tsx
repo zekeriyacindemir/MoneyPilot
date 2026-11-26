@@ -59,7 +59,7 @@ export function BudgetsPageClient() {
   return (
     <div className="space-y-7">
       <PageHeader
-        title="Budgets"
+        title="Bütçeler"
         description="Gider limitlerinizi ve gelir hedeflerinizi dönem bazında takip edin."
         action={
           <button

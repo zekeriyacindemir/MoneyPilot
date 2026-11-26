@@ -17,7 +17,7 @@ export function AuthShell({
   title: string;
 }) {
   return (
-    <main className="theme-gold grid min-h-screen bg-[var(--background)] lg:grid-cols-[1.05fr_1fr]">
+    <main className="grid min-h-screen bg-[var(--background)] lg:grid-cols-[1.05fr_1fr]">
       {/* Desktop: the same video panel as the landing hero */}
       <aside className="relative isolate hidden flex-col justify-between overflow-hidden bg-[#0b0c0f] p-12 text-white lg:flex xl:p-16">
         <AmbientVideo
@@ -146,7 +146,7 @@ export function AuthFormError({ error }: { error: string | null }) {
 
 export function AuthLoadingFallback() {
   return (
-    <main className="theme-gold flex min-h-screen flex-col items-center justify-center gap-4 bg-[var(--background)] px-4">
+    <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[var(--background)] px-4">
       <BrandMark className="size-12 animate-pulse" />
       <p className="text-sm text-[var(--muted-foreground)]">Oturum kontrol ediliyor...</p>
     </main>

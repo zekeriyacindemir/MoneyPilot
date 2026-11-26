@@ -120,7 +120,7 @@ function DashboardPreview() {
 
 export default function HomePage() {
   return (
-    <main className="theme-gold min-h-screen">
+    <main className="min-h-screen">
       {/* Hero: full-bleed background video */}
       <section className="relative isolate flex min-h-[min(100svh,1000px)] flex-col overflow-hidden bg-[#0b0c0f] text-white">
         <AmbientVideo

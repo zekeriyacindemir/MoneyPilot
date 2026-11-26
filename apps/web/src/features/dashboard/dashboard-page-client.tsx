@@ -261,7 +261,7 @@ function CurrentPositionCard({
           </p>
         </div>
         <div className="rounded-xl bg-white/10 p-4 sm:min-w-64">
-          <p className="text-xs font-semibold uppercase tracking-wide text-blue-100">
+          <p className="text-xs font-semibold uppercase tracking-wide text-[#e6c06b]">
             {periodLabels[period]} nakit akışı
           </p>
           <p
@@ -270,7 +270,7 @@ function CurrentPositionCard({
             {cashFlow >= 0 ? '+' : ''}
             {formatAmount(cashFlow.toString(), summary.currency)}
           </p>
-          <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+          <p className="mt-1 text-xs text-white/60">
             {formatAmount(summary.periodIncome, summary.currency)} gelir ·{' '}
             {formatAmount(summary.periodExpense, summary.currency)} gider
           </p>
@@ -278,7 +278,7 @@ function CurrentPositionCard({
       </div>
       <Link
         href="/dashboard/reports"
-        className="mt-6 inline-block text-xs font-semibold text-blue-100 hover:underline"
+        className="mt-6 inline-block text-xs font-semibold text-[#e6c06b] hover:underline"
       >
         Dönemsel analizi raporlarda incele →
       </Link>
