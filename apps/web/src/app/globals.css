@@ -28,6 +28,8 @@
   --chart-income: #2862e9;
   --chart-expense: #a8bfed;
   --glow: rgb(40 98 233 / 0.12);
+  --gold: #8a6420;
+  --gold-muted: #f7efdc;
 }
 .dark {
   --background: #101722;
@@ -57,6 +59,8 @@
   --chart-income: #8badff;
   --chart-expense: #526e9c;
   --glow: rgb(139 173 255 / 0.12);
+  --gold: #e6c06b;
+  --gold-muted: #3a3020;
 }
 * {
   border-color: var(--border);
@@ -116,6 +120,42 @@ textarea {
     linear-gradient(var(--border) 1px, transparent 1px),
     linear-gradient(90deg, var(--border) 1px, transparent 1px);
   background-size: 52px 52px;
+}
+/* Landing page: gold accents taken from the hero video's palette. */
+.gold-text {
+  background: linear-gradient(100deg, #f6dc9a 0%, #d9a944 45%, #f3d38a 70%, #b88328 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.gold-button {
+  background: linear-gradient(135deg, #f4d98f 0%, #d6a443 55%, #b9862c 100%);
+  color: #1c1408;
+  box-shadow:
+    0 10px 30px -10px rgb(214 164 67 / 0.65),
+    inset 0 1px 0 rgb(255 255 255 / 0.45);
+}
+.gold-button:hover {
+  filter: brightness(1.06);
+}
+.glass-panel {
+  background: rgb(255 255 255 / 0.07);
+  border: 1px solid rgb(255 255 255 / 0.14);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.reveal-up {
+  animation: reveal-up 900ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 .money-number {
   font-variant-numeric: tabular-nums;
