@@ -1,7 +1,25 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { BrandLogo } from '@/features/brand/brand-logo';
 import { Icon, type IconName } from '@/features/dashboard/components/icons';
 import { AmbientVideo } from '@/features/landing/ambient-video';
+import { site } from '@/lib/site';
+
+export const metadata: Metadata = {
+  alternates: { canonical: '/' },
+};
+
+// Structured data so search engines can show MoneyPilot as a web application.
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: site.name,
+  url: site.url,
+  description: site.description,
+  applicationCategory: 'FinanceApplication',
+  operatingSystem: 'Web',
+  inLanguage: 'tr',
+};
 
 const HERO_VIDEO = '/media/hero.mp4';
 const HERO_POSTER = '/media/hero-poster.jpg';
@@ -121,6 +139,11 @@ function DashboardPreview() {
 export default function HomePage() {
   return (
     <main className="min-h-screen">
+      <script
+        type="application/ld+json"
+        // JSON.stringify output is safe here: every value is a constant defined above.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       {/* Hero: full-bleed background video */}
       <section className="relative isolate flex min-h-[min(100svh,1000px)] flex-col overflow-hidden bg-[#0b0c0f] text-white">
         <AmbientVideo

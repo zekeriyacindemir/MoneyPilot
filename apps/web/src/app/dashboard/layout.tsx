@@ -1,6 +1,13 @@
+import type { Metadata } from 'next';
 import { Suspense, type ReactNode } from 'react';
 import { ProtectedRoute } from '@/features/auth/protected-route';
 import { DashboardShell } from '@/features/dashboard/dashboard-shell';
+
+export const metadata: Metadata = {
+  title: 'Panel',
+  // Private, signed-in area: keep it out of search results.
+  robots: { index: false, follow: false },
+};
 
 function DashboardLoadingState() {
   return (

@@ -44,4 +44,4 @@ jobs:
       - run: npm run build
       - run: docker build -f docker/api.Dockerfile -t moneypilot-api:ci .
       - run: docker build -f docker/api.Dockerfile --target migrate -t moneypilot-migrate:ci .
-      - run: docker build -f docker/web.Dockerfile --build-arg NEXT_PUBLIC_API_URL=https://api.example.com -t moneypilot-web:ci .
+      - run: docker build -f docker/web.Dockerfile --build-arg NEXT_PUBLIC_API_URL=https://api.example.com --build-arg NEXT_PUBLIC_SITE_URL=https://app.example.com -t moneypilot-web:ci .

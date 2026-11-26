@@ -61,6 +61,7 @@ services:
       dockerfile: docker/web.Dockerfile
       args:
         NEXT_PUBLIC_API_URL: ${API_ORIGIN:?Set API_ORIGIN in .env.production}
+        NEXT_PUBLIC_SITE_URL: ${WEB_ORIGIN:?Set WEB_ORIGIN in .env.production}
     restart: unless-stopped
     depends_on:
       api:

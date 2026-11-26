@@ -10,6 +10,10 @@ FROM dependencies AS build
 ARG NEXT_PUBLIC_API_URL
 RUN test -n "$NEXT_PUBLIC_API_URL" || (echo "NEXT_PUBLIC_API_URL build argument is required" && exit 1)
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+# The public web origin, used for canonical URLs, the sitemap and social share images.
+ARG NEXT_PUBLIC_SITE_URL
+RUN test -n "$NEXT_PUBLIC_SITE_URL" || (echo "NEXT_PUBLIC_SITE_URL build argument is required" && exit 1)
+ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 COPY . .
 RUN npm run build --workspace=@moneypilot/web
 
