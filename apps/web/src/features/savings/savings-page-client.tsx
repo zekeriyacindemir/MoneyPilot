@@ -80,7 +80,7 @@ export function SavingsPageClient() {
   return (
     <div className="space-y-7">
       <PageHeader
-        title="Savings Goals"
+        title="Birikim hedefleri"
         description="Birikim hedeflerinizi güncel toplam tutar üzerinden takip edin."
         action={
           <button
