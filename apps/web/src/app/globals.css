@@ -30,6 +30,7 @@
   --glow: rgb(40 98 233 / 0.12);
   --gold: #8a6420;
   --gold-muted: #f7efdc;
+  --brand-teal: #0d9488;
 }
 .dark {
   --background: #101722;
@@ -61,6 +62,7 @@
   --glow: rgb(139 173 255 / 0.12);
   --gold: #e6c06b;
   --gold-muted: #3a3020;
+  --brand-teal: #2dd4bf;
 }
 * {
   border-color: var(--border);
@@ -122,6 +124,14 @@ textarea {
   background-size: 52px 52px;
 }
 /* Landing page: gold accents taken from the hero video's palette. */
+/* Public pages (landing, auth, 404) swap the blue accent for the brand gold. */
+.theme-gold {
+  --primary: var(--gold);
+  --primary-foreground: #1c1408;
+  --ring: var(--gold);
+  --secondary: var(--gold-muted);
+  --secondary-foreground: var(--gold);
+}
 .gold-text {
   background: linear-gradient(100deg, #f6dc9a 0%, #d9a944 45%, #f3d38a 70%, #b88328 100%);
   -webkit-background-clip: text;

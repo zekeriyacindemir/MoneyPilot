@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { BrandLogo } from '@/features/brand/brand-logo';
 import { Icon, type IconName } from '@/features/dashboard/components/icons';
 import { AmbientVideo } from '@/features/landing/ambient-video';
 
@@ -52,23 +53,6 @@ const steps = [
     body: 'Birikim hedefini belirle. Küçük adımları alışkanlığa dönüştür.',
   },
 ];
-
-function Wordmark() {
-  return (
-    <span className="inline-flex items-center gap-2.5 text-xl font-semibold tracking-tight">
-      <span className="inline-flex size-9 items-center justify-center rounded-xl border border-white/15 bg-white/10 backdrop-blur-md">
-        <svg viewBox="0 0 24 24" className="size-5" fill="none" aria-hidden="true">
-          <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="1.6" opacity=".6" />
-          <path d="m7.5 15 3-3 2 2 4-5" stroke="#2dd4bf" strokeWidth="1.8" strokeLinecap="round" />
-          <path d="m14 8.5 3-.5-.5 3" stroke="#e6c06b" strokeWidth="1.8" strokeLinecap="round" />
-        </svg>
-      </span>
-      <span>
-        Money<span className="text-[#2dd4bf]">Pilot</span>
-      </span>
-    </span>
-  );
-}
 
 function DashboardPreview() {
   return (
@@ -136,7 +120,7 @@ function DashboardPreview() {
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen">
+    <main className="theme-gold min-h-screen">
       {/* Hero: full-bleed background video */}
       <section className="relative isolate flex min-h-[min(100svh,1000px)] flex-col overflow-hidden bg-[#0b0c0f] text-white">
         <AmbientVideo
@@ -155,7 +139,7 @@ export default function HomePage() {
             className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 sm:px-8"
           >
             <Link href="/" aria-label="MoneyPilot ana sayfa">
-              <Wordmark />
+              <BrandLogo tone="light" />
             </Link>
             <div className="flex items-center gap-4 sm:gap-7">
               <a

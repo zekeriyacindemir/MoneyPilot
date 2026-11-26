@@ -60,7 +60,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
       >
         <div className="flex items-center justify-between px-2">
           <Link href="/dashboard" className="group inline-flex items-center gap-3 rounded-xl">
-            <BrandLogo className="h-11 w-40" priority />
+            <BrandLogo className="px-1 py-1.5 text-lg" />
           </Link>
           <IconButton
             label="Menüyü kapat"
